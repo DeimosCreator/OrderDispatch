@@ -1,4 +1,19 @@
 ﻿services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   gateway:
     image: gateway
     build:
@@ -8,3 +23,6 @@
       ASPNETCORE_ENVIRONMENT: "Development"
     ports:
       - "5000:8080"
+
+volumes:
+  postgres-data:
