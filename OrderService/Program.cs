@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
+using OrderService.Services.Interfaces;
 
 DotNetEnv.Env.Load();
 
@@ -8,9 +9,12 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 // сервисы
+builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddScoped<IOrderService, OrderService.Services.OrderService>();
 
 builder.Services.Configure<RouteOptions>(options =>
 {
@@ -25,5 +29,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.Migrate(); 
 }
+
+app.MapOpenApi();
 
 app.Run();
