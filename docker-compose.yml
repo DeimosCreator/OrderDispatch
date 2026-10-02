@@ -23,6 +23,19 @@
       ASPNETCORE_ENVIRONMENT: "Development"
     ports:
       - "5000:8080"
+    depends_on:
+      - order-service
 
+  order-service:
+    build:
+      context: .
+      dockerfile: OrderService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=${ORDER_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+    depends_on:
+      db:
+        condition: service_healthy
+  
 volumes:
   postgres-data:
