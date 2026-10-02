@@ -31,5 +31,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapOpenApi();
+app.MapControllers();
 
 app.Run();
