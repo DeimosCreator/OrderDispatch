@@ -68,7 +68,7 @@ public class OrderController : ControllerBase
                 NotFound("Заказ не найден"),
 
             PayOrderResult.CannotPaid =>
-                Conflict("Заказ нельзя отменить"),
+                Conflict("Заказ нельзя оплатить"),
 
             PayOrderResult.Paid =>
                 Ok("Заказ отменен"),
