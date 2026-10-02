@@ -3,7 +3,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-    .AddOpenApiForYarp(); 
+    .AddOpenApiForYarp();
 
 var app = builder.Build();
 

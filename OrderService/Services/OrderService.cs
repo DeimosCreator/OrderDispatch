@@ -2,6 +2,7 @@
 using OrderService.Data;
 using OrderService.Models.Dtos;
 using OrderService.Models.Enities;
+using OrderService.Models.Enities.Enums;
 using OrderService.Services.Interfaces;
 
 namespace OrderService.Services;
@@ -35,10 +36,7 @@ public class OrderService : IOrderService
         var order = new Order
         {
             CustomerId = createOrderDto.CustomerId,
-            Status = OrderStatus.Created,
-            TotalPrice = createOrderDto.TotalPrice,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            TotalPrice = createOrderDto.TotalPrice
         };
 
         _db.Orders.Add(order);
@@ -73,33 +71,33 @@ public class OrderService : IOrderService
         return status;
     }
 
-    public async Task<OrderStatus?> PayOrder(int id)
+    public async Task<PayOrderResult> PayOrder(int id)
     {
         var order = await _db.Orders.FirstOrDefaultAsync(order => order.Id == id);
 
         if (order == null)
         {
-            return null;
+            return PayOrderResult.NotFound;
         }
-
-        order.Status = OrderStatus.Paid;
+        
+        if (!order.TransitionTo(OrderStatus.Paid)) return PayOrderResult.CannotPaid;
+        
         await _db.SaveChangesAsync();
-
-        return OrderStatus.Paid;
+        return PayOrderResult.Paid;
     }
 
-    public async Task<OrderStatus?> CancelOrder(int id)
+    public async Task<CancelOrderResult> CancelOrder(int id)
     {
         var order = await _db.Orders.FirstOrDefaultAsync(order => order.Id == id);
 
         if (order == null)
         {
-            return null;
+            return CancelOrderResult.NotFound;
         }
 
-        order.Status = OrderStatus.Cancelled;
+        if (!order.TransitionTo(OrderStatus.Cancelled)) return CancelOrderResult.CannotCancel;
+        
         await _db.SaveChangesAsync();
-
-        return OrderStatus.Cancelled;
+        return CancelOrderResult.Cancelled;
     }
 }

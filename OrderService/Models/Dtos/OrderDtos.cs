@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using OrderService.Models.Enities;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using OrderService.Models.Enities.Enums;
 
 namespace OrderService.Models.Dtos;
 
 public record OrderDto(
     int Id,
-    int CustomerId,
+    string CustomerId,
     OrderStatus Status,
     decimal TotalPrice,
     DateTime CreatedAt,
@@ -13,12 +14,12 @@ public record OrderDto(
 );
 
 public record CreateOrderDto(
-    [property: Range(0, int.MaxValue)] int CustomerId,
-    [property: Range(0.01, int.MaxValue)] decimal TotalPrice
+    string CustomerId,
+    [Range(0.01, int.MaxValue)] decimal TotalPrice = 100
 );
 
 public record UpdateOrderDto(
-    [property: Range(0, int.MaxValue)] int Id,
-    [property: Range(0, int.MaxValue)] int CustomerId,
-    decimal TotalPrice
+    [Range(0, int.MaxValue)] int Id,
+    string CustomerId,
+    [Range(0.01, int.MaxValue)] decimal TotalPrice = 100
 );
