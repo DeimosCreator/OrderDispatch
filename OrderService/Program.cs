@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
-using OrderService.Services.Interfaces;
 
 DotNetEnv.Env.Load();
 
@@ -15,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
-builder.Services.AddScoped<IOrderService, OrderService.Services.OrderService>();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
 builder.Services.Configure<RouteOptions>(options =>
 {

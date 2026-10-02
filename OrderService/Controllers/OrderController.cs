@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using OrderService.Models.Dtos;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using OrderService.Features.Orders.CancelOrder;
+using OrderService.Features.Orders.CreateOrder;
+using OrderService.Features.Orders.GetOrder;
+using OrderService.Features.Orders.GetOrders;
+using OrderService.Features.Orders.GetOrderStatus;
+using OrderService.Features.Orders.PayOrder;
 using OrderService.Models.Enities.Enums;
-using OrderService.Services.Interfaces;
 
 namespace OrderService.Controllers;
 
@@ -9,24 +14,24 @@ namespace OrderService.Controllers;
 [Route("api/orders")]
 public class OrderController : ControllerBase
 {
-    private readonly IOrderService _service;
+    private readonly IMediator _mediator;
 
-    public OrderController(IOrderService service)
+    public OrderController(IMediator mediator)
     {
-        _service = service;
+        _mediator = mediator;
     }
     
     [HttpGet]
     public async Task<IActionResult> GetOrders()
     {
-        var orders = await _service.GetOrders();
+        var orders = await _mediator.Send(new GetOrdersQuery());
         return Ok(orders);
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto)
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand createOrderCommand)
     {
-        var order = await _service.CreateOrder(orderDto);
+        var order = await _mediator.Send(createOrderCommand);
         return CreatedAtAction(
             nameof(GetOrder),
             new {id = order.Id},
@@ -36,7 +41,7 @@ public class OrderController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetOrder(int id)
     {
-        var order = await _service.GetOrder(id);
+        var order = await _mediator.Send(new GetOrderQuery(id));
         if (order == null)
         {
             return BadRequest("Заказ не найден");
@@ -48,7 +53,7 @@ public class OrderController : ControllerBase
     [HttpGet("{id:int}/status")]
     public async Task<IActionResult> GetOrderStatus(int id)
     {
-        var status = await _service.GetOrderStatus(id);
+        var status = await _mediator.Send(new GetOrderStatusQuery(id));
         if (status == null)
         {
             return BadRequest("Заказ не найден");
@@ -60,7 +65,7 @@ public class OrderController : ControllerBase
     [HttpPost("{id:int}/pay")]
     public async Task<IActionResult> PayOrder(int id)
     {
-        var result = await _service.PayOrder(id);
+        var result = await _mediator.Send(new PayOrderCommand(id));
 
         return result switch
         {
@@ -71,7 +76,7 @@ public class OrderController : ControllerBase
                 Conflict("Заказ нельзя оплатить"),
 
             PayOrderResult.Paid =>
-                Ok("Заказ отменен"),
+                Ok("Заказ оплачен"),
 
             _ => StatusCode(500)
         };
@@ -80,7 +85,7 @@ public class OrderController : ControllerBase
     [HttpPost("{id:int}/cancel")]
     public async Task<IActionResult> CancelOrder(int id)
     {
-        var result = await _service.CancelOrder(id);
+        var result = await _mediator.Send(new CancelOrderCommand(id));
 
         return result switch
         {
