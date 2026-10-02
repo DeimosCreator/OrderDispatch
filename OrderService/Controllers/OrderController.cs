@@ -56,7 +56,7 @@ public class OrderController : ControllerBase
         return Ok(status);
     }
     
-    [HttpGet("{id:int}/pay")]
+    [HttpPost("{id:int}/pay")]
     public async Task<IActionResult> PayOrder(int id)
     {
         var status = await _service.PayOrder(id);
@@ -68,7 +68,7 @@ public class OrderController : ControllerBase
         return Ok(status + ". Заказ оплачен");
     }
     
-    [HttpGet("{id:int}/cancel")]
+    [HttpPost("{id:int}/cancel")]
     public async Task<IActionResult> CancelOrder(int id)
     {
         var status = await _service.CancelOrder(id);

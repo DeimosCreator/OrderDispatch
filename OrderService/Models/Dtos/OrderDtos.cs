@@ -12,7 +12,6 @@ public record OrderDto(
 );
 
 public record CreateOrderDto(
-    int Id,
     int CustomerId,
     decimal TotalPrice
 );
