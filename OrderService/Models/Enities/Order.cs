@@ -11,6 +11,8 @@ public class Order
     public decimal TotalPrice { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    public List<OrderItem> OrderItems { get; set; } = [];
     
     public bool TransitionTo(OrderStatus nextStatus)
     {
