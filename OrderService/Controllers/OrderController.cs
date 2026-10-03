@@ -12,26 +12,19 @@ namespace OrderService.Controllers;
 
 [ApiController]
 [Route("api/orders")]
-public class OrderController : ControllerBase
+public class OrderController(ISender sender) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public OrderController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-    
     [HttpGet]
     public async Task<IActionResult> GetOrders()
     {
-        var orders = await _mediator.Send(new GetOrdersQuery());
+        var orders = await sender.Send(new GetOrdersQuery());
         return Ok(orders);
     }
     
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand createOrderCommand)
     {
-        var order = await _mediator.Send(createOrderCommand);
+        var order = await sender.Send(createOrderCommand);
         return CreatedAtAction(
             nameof(GetOrder),
             new {id = order.Id},
@@ -41,7 +34,7 @@ public class OrderController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetOrder(int id)
     {
-        var order = await _mediator.Send(new GetOrderQuery(id));
+        var order = await sender.Send(new GetOrderQuery(id));
         if (order == null)
         {
             return BadRequest("Заказ не найден");
@@ -53,7 +46,7 @@ public class OrderController : ControllerBase
     [HttpGet("{id:int}/status")]
     public async Task<IActionResult> GetOrderStatus(int id)
     {
-        var status = await _mediator.Send(new GetOrderStatusQuery(id));
+        var status = await sender.Send(new GetOrderStatusQuery(id));
         if (status == null)
         {
             return BadRequest("Заказ не найден");
@@ -65,7 +58,7 @@ public class OrderController : ControllerBase
     [HttpPost("{id:int}/pay")]
     public async Task<IActionResult> PayOrder(int id)
     {
-        var result = await _mediator.Send(new PayOrderCommand(id));
+        var result = await sender.Send(new PayOrderCommand(id));
 
         return result switch
         {
@@ -85,7 +78,7 @@ public class OrderController : ControllerBase
     [HttpPost("{id:int}/cancel")]
     public async Task<IActionResult> CancelOrder(int id)
     {
-        var result = await _mediator.Send(new CancelOrderCommand(id));
+        var result = await sender.Send(new CancelOrderCommand(id));
 
         return result switch
         {
