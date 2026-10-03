@@ -37,5 +37,16 @@
       db:
         condition: service_healthy
   
+  kitchen-service:
+    build:
+      context: .
+      dockerfile: KitchenService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=${ORDER_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+    depends_on:
+      db:
+        condition: service_healthy
+  
 volumes:
   postgres-data:
