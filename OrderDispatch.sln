@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService", "OrderServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KitchenService", "KitchenService\KitchenService.csproj", "{869E6303-68B9-4F1E-8F24-41CC2ED379A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderDispatch.Contracts", "OrderDispatch.Contracts\OrderDispatch.Contracts.csproj", "{8C33E386-9536-4A53-832C-972145BB4BBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,5 +31,9 @@ Global
 		{869E6303-68B9-4F1E-8F24-41CC2ED379A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{869E6303-68B9-4F1E-8F24-41CC2ED379A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{869E6303-68B9-4F1E-8F24-41CC2ED379A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C33E386-9536-4A53-832C-972145BB4BBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C33E386-9536-4A53-832C-972145BB4BBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C33E386-9536-4A53-832C-972145BB4BBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C33E386-9536-4A53-832C-972145BB4BBE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

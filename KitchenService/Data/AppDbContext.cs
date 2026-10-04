@@ -7,4 +7,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Kitchen> Kitchens => Set<Kitchen>();
     public DbSet<KitchenOrder> KitchenOrders => Set<KitchenOrder>();
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<KitchenOrder>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.OrderId)
+                .IsUnique(); 
+        });
+    }
 }

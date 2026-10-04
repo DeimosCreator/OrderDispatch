@@ -1,4 +1,5 @@
 using KitchenService.Data;
+using KitchenService.Features.Kitchen.Clients.OrderService;
 using Microsoft.EntityFrameworkCore;
 
 DotNetEnv.Env.Load();
@@ -19,6 +20,11 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Progr
 builder.Services.Configure<RouteOptions>(options =>
 {
     options.LowercaseUrls = true;
+});
+
+builder.Services.AddHttpClient<IOrderHttpClient, OrderHttpClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["OrderServiceSettings:BaseUrl"]!);
 });
 
 builder.Services.AddSwaggerGen(options =>
