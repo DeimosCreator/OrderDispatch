@@ -25,4 +25,12 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Models\Dtos\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OrderDispatch.Contracts\OrderDispatch.Contracts.csproj" />
+    </ItemGroup>
+
 </Project>

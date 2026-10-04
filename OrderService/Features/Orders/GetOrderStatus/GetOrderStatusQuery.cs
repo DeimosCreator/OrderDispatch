@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using OrderService.Models.Enities.Enums;
+using OrderDispatch.Contracts.Enums;
 
 namespace OrderService.Features.Orders.GetOrderStatus;
 

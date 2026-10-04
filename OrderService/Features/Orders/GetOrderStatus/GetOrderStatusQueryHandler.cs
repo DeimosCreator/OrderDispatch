@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using OrderDispatch.Contracts.Enums;
 using OrderService.Data;
-using OrderService.Models.Enities.Enums;
 
 namespace OrderService.Features.Orders.GetOrderStatus;
 

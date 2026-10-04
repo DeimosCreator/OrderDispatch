@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using OrderService.Models.Dtos;
+using OrderDispatch.Contracts.Dtos;
 
 namespace OrderService.Features.Orders.GetOrders;
 

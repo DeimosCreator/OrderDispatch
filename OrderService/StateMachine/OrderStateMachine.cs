@@ -1,4 +1,5 @@
-﻿using OrderService.Models.Enities.Enums;
+﻿using OrderDispatch.Contracts.Enums;
+using OrderService.Models.Enities.Enums;
 
 namespace OrderService.StateMachine;
 

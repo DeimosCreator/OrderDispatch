@@ -1,4 +1,4 @@
-﻿namespace OrderService.Models.Enities.Enums;
+﻿namespace OrderDispatch.Contracts.Enums;
 
 public enum OrderStatus
 {

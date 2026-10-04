@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
-using OrderService.Models.Dtos;
+using OrderDispatch.Contracts.Dtos;
 
 namespace OrderService.Features.Orders.GetOrder;
 

@@ -1,6 +1,6 @@
-﻿using OrderService.Models.Enities.Enums;
+﻿using OrderDispatch.Contracts.Enums;
 
-namespace OrderService.Models.Dtos;
+namespace OrderDispatch.Contracts.Dtos;
 
 public record OrderDto(
     int Id,
