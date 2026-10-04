@@ -4,6 +4,7 @@ using OrderService.Features.Orders.CancelOrder;
 using OrderService.Features.Orders.CreateOrder;
 using OrderService.Features.Orders.GetOrder;
 using OrderService.Features.Orders.GetOrders;
+using OrderService.Features.Orders.GetOrdersBatch;
 using OrderService.Features.Orders.GetOrderStatus;
 using OrderService.Features.Orders.PayOrder;
 using OrderService.Models.Enities.Enums;
@@ -41,6 +42,13 @@ public class OrderController(ISender sender) : ControllerBase
         }
         
         return Ok(order);
+    }
+
+    [HttpGet("batch")]
+    public async Task<IActionResult> GetOrdersBatch([FromBody] GetOrdersBatchQuery ordersBatchQuery)
+    {
+        var orders = await sender.Send(ordersBatchQuery);
+        return Ok(orders);
     }
     
     [HttpGet("{id:int}/status")]

@@ -26,11 +26,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\Dtos\" />
+      <ProjectReference Include="..\OrderDispatch.Contracts\OrderDispatch.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\OrderDispatch.Contracts\OrderDispatch.Contracts.csproj" />
+      <Folder Include="Models\Enities\Dto\" />
     </ItemGroup>
 
 </Project>
