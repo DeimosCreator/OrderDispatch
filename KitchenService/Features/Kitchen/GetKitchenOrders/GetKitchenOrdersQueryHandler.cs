@@ -10,24 +10,18 @@ public class GetKitchenOrdersQueryHandler(AppDbContext db)
 {
     public async Task<List<OrderDto>> Handle(GetKitchenOrdersQuery request, CancellationToken cancellationToken)
     {
-        var query = db.KitchenOrders
+        var ordersDtos = await db.KitchenOrders
             .Where(ko => ko.KitchenId == request.Id)
-            .Join(
-                db.OrderReadModels,
-                ko => ko.OrderId,
-                o => o.Id,
-                (ko, o) => new OrderDto(
-                    o.Id, 
-                    o.CustomerId, 
-                    o.Status, 
-                    o.TotalPrice, 
-                    ko.CreatedAt, 
-                    ko.UpdatedAt
-                )
-            );
+            .Select(ko => new OrderDto(
+                ko.OrderId,
+                ko.CustomerId,
+                ko.GlobalOrderStatus,
+                ko.TotalPrice,
+                ko.CreatedAt,
+                ko.UpdatedAt
+            ))
+            .ToListAsync(cancellationToken);
 
-        var ordersDtos = await query.ToListAsync(cancellationToken);
-        
         return ordersDtos;
     }
 }

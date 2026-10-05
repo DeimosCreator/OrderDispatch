@@ -1,5 +1,4 @@
 ﻿using KitchenService.Data;
-using KitchenService.Models.Enities;
 using MassTransit;
 using OrderDispatch.Contracts.Messaging.Events;
 
@@ -11,15 +10,18 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
     {
         var msg = context.Message;
 
-        var readOrder = new OrderReadModel
+        var kitchenOrder = new Models.Enities.KitchenOrder
         {
-            Id = msg.OrderId,
+            OrderId = msg.OrderId,
+            // Заполняем кэш-данные
             CustomerId = msg.CustomerId,
-            Status = msg.Status,
-            TotalPrice = msg.TotalPrice
+            TotalPrice = msg.TotalPrice,
+            GlobalOrderStatus = msg.Status,
+            // TODO: Сделать определение свободной кухни
+            KitchenId = 1 
         };
 
-        db.OrderReadModels.Add(readOrder);
+        db.KitchenOrders.Add(kitchenOrder);
         await db.SaveChangesAsync();
     }
 }

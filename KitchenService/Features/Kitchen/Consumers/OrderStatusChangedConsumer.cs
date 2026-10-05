@@ -11,16 +11,16 @@ public class OrderStatusChangedConsumer(AppDbContext db) : IConsumer<OrderStatus
     {
         var msg = context.Message;
 
-        var orderRead = await db.OrderReadModels
-            .Where(orderRead => orderRead.Id == msg.OrderId)
-            .FirstOrDefaultAsync();
+        var kitchenOrder = await db.KitchenOrders
+            .FirstOrDefaultAsync(ko => ko.OrderId == msg.OrderId);
 
-        if (orderRead == null)
+        if (kitchenOrder == null)
         {
-            throw new InvalidOperationException($"Order {msg.OrderId} not found yet.");
+            throw new InvalidOperationException($"KitchenOrder for Order {msg.OrderId} not found yet.");
         }
 
-        orderRead.Status = msg.NewStatus;
+        kitchenOrder.GlobalOrderStatus = msg.NewStatus;
+        
         await db.SaveChangesAsync();
     }
 }
