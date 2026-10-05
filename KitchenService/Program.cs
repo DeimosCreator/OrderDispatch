@@ -1,5 +1,5 @@
 using KitchenService.Data;
-using KitchenService.Features.Kitchen.Clients.OrderService;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 DotNetEnv.Env.Load();
@@ -17,14 +17,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumers(typeof(Program).Assembly);
+    x.UsingRabbitMq((content, cfg) =>
+    {
+        cfg.Host("localhost", "/", h =>
+        {
+            h.Username("user");
+            h.Password("password");
+        });
+        cfg.ConfigureEndpoints(content);
+    });
+});
+
 builder.Services.Configure<RouteOptions>(options =>
 {
     options.LowercaseUrls = true;
-});
-
-builder.Services.AddHttpClient<IOrderHttpClient, OrderHttpClient>(client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["OrderServiceSettings:BaseUrl"]!);
 });
 
 builder.Services.AddSwaggerGen(options =>

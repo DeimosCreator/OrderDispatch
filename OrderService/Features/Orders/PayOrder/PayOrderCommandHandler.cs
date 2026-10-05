@@ -1,12 +1,14 @@
-﻿using MediatR;
+﻿using MassTransit;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Enums;
+using OrderDispatch.Contracts.Messaging.Events;
 using OrderService.Data;
 using OrderService.Models.Enities.Enums;
 
 namespace OrderService.Features.Orders.PayOrder;
 
-public class PayOrderCommandHandler(AppDbContext db) : IRequestHandler<PayOrderCommand, PayOrderResult>
+public class PayOrderCommandHandler(AppDbContext db, IPublishEndpoint publishEndpoint) : IRequestHandler<PayOrderCommand, PayOrderResult>
 {
     public async Task<PayOrderResult> Handle(PayOrderCommand request, CancellationToken cancellationToken)
     {
@@ -20,6 +22,10 @@ public class PayOrderCommandHandler(AppDbContext db) : IRequestHandler<PayOrderC
         if (!order.TransitionTo(OrderStatus.Paid)) return PayOrderResult.CannotPaid;
         
         await db.SaveChangesAsync(cancellationToken);
+
+        await publishEndpoint.Publish(new OrderStatusChangedEvent(order.Id, order.Status, order.UpdatedAt),
+            cancellationToken);
+        
         return PayOrderResult.Paid;
     }
 }

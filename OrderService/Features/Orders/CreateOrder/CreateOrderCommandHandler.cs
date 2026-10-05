@@ -1,11 +1,13 @@
-﻿using MediatR;
+﻿using MassTransit;
+using MediatR;
 using OrderDispatch.Contracts.Dtos;
+using OrderDispatch.Contracts.Messaging.Events;
 using OrderService.Data;
 using OrderService.Models.Enities;
 
 namespace OrderService.Features.Orders.CreateOrder;
 
-public class CreateOrderCommandHandler(AppDbContext db) : IRequestHandler<CreateOrderCommand, OrderDto>
+public class CreateOrderCommandHandler(AppDbContext db, IPublishEndpoint publishEndpoint) : IRequestHandler<CreateOrderCommand, OrderDto>
 {
     public async Task<OrderDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
@@ -17,6 +19,9 @@ public class CreateOrderCommandHandler(AppDbContext db) : IRequestHandler<Create
 
         db.Orders.Add(order);
         await db.SaveChangesAsync(cancellationToken);
+
+        await publishEndpoint.Publish(new OrderCreatedEvent(
+            order.Id, order.CustomerId, order.Status, order.TotalPrice, order.CreatedAt), cancellationToken);
 
         var orderDto = new OrderDto(order.Id, order.CustomerId, order.Status, order.TotalPrice, order.CreatedAt,
             order.UpdatedAt);
