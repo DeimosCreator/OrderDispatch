@@ -20,14 +20,16 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Progr
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumers(typeof(Program).Assembly);
-    x.UsingRabbitMq((content, cfg) =>
+
+    x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("localhost", "/", h =>
+        cfg.Host(Environment.GetEnvironmentVariable("RABBITMQ_HOST")!, "/", h =>
         {
-            h.Username("user");
-            h.Password("password");
+            h.Username(Environment.GetEnvironmentVariable("RABBITMQ_USER")!);
+            h.Password(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD")!);
         });
-        cfg.ConfigureEndpoints(content);
+
+        cfg.ConfigureEndpoints(context);
     });
 });
 

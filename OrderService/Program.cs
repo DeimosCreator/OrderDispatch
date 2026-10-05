@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
 
@@ -15,6 +16,22 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumers(typeof(Program).Assembly);
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(Environment.GetEnvironmentVariable("RABBITMQ_HOST")!, "/", h =>
+        {
+            h.Username(Environment.GetEnvironmentVariable("RABBITMQ_USER")!);
+            h.Password(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD")!);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 builder.Services.Configure<RouteOptions>(options =>
 {
