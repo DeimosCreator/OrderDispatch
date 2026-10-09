@@ -1,6 +1,8 @@
 using KitchenService.Data;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 DotNetEnv.Env.Load();
 
@@ -33,6 +35,22 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY");
+        
+        options.RequireHttpsMetadata = false;
+        
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateIssuer = true,
+            ValidIssuer = options.Authority,
+            ValidateLifetime = true
+        };
+    });
+
 builder.Services.Configure<RouteOptions>(options =>
 {
     options.LowercaseUrls = true;
@@ -54,5 +72,8 @@ using (var scope = app.Services.CreateScope())
 
 app.MapOpenApi();
 app.MapControllers();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();

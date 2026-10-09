@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Features.Orders.CancelOrder;
 using OrderService.Features.Orders.CreateOrder;
@@ -13,7 +14,8 @@ namespace OrderService.Controllers;
 
 [ApiController]
 [Route("api/orders")]
-public class OrderController(ISender sender) : ControllerBase
+[Authorize]
+public class OrderController(ISender sender) : BaseController
 {
     [HttpGet]
     public async Task<IActionResult> GetOrders()
@@ -25,7 +27,8 @@ public class OrderController(ISender sender) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand createOrderCommand)
     {
-        var order = await sender.Send(createOrderCommand);
+        var userId = GetUserId();
+        var order = await sender.Send(createOrderCommand with { UserId = userId });
         return CreatedAtAction(
             nameof(GetOrder),
             new {id = order.Id},
