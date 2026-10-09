@@ -25,7 +25,7 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
         var kitchenOrder = new Models.Enities.KitchenOrder
         {
             OrderId = msg.OrderId,
-            CustomerId = msg.CustomerId,
+            UserId = msg.UserId,
             TotalPrice = msg.TotalPrice,
             GlobalOrderStatus = allowedKitchen != null ? msg.Status : OrderStatus.Rejected, 
             KitchenId = allowedKitchen?.Id ?? -1

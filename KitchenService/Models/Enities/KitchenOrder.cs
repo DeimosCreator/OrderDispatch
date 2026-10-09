@@ -9,7 +9,7 @@ public class KitchenOrder
     public int Id { get; set; }
     public int OrderId { get; set; }
     public int KitchenId { get; set; }
-    public string CustomerId { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
     public decimal TotalPrice { get; set; }
     public KitchenStatus Status { get; private set; } = KitchenStatus.Queued;
     public OrderStatus GlobalOrderStatus { get; set; } 

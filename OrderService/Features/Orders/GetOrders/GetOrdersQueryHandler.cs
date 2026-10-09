@@ -13,7 +13,7 @@ public class GetOrdersQueryHandler(AppDbContext db) : IRequestHandler<GetOrdersQ
         var orderDtos = orders
             .Select(order => new OrderDto(
                 order.Id,
-                order.CustomerId,
+                order.UserId,
                 order.Status,
                 order.TotalPrice,
                 order.CreatedAt,

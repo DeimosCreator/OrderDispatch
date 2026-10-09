@@ -7,7 +7,7 @@ namespace OrderService.Models.Enities;
 public class Order
 {
     public int Id { get; set; }
-    public string CustomerId { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
     public OrderStatus Status { get; private set; } = OrderStatus.Created;
     public decimal TotalPrice { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

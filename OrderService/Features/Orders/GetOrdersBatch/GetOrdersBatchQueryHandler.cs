@@ -15,7 +15,7 @@ public class GetOrdersBatchQueryHandler(AppDbContext db) : IRequestHandler<GetOr
             .ToListAsync(cancellationToken);
 
         var orderDtos = orders.Select(order =>
-                new OrderDto(order.Id, order.CustomerId, order.Status, order.TotalPrice, order.CreatedAt,
+                new OrderDto(order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt,
                     order.UpdatedAt))
             .ToList();
 

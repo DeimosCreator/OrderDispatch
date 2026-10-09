@@ -14,7 +14,7 @@ public class GetKitchenOrdersQueryHandler(AppDbContext db)
             .Where(ko => ko.KitchenId == request.Id)
             .Select(ko => new OrderDto(
                 ko.OrderId,
-                ko.CustomerId,
+                ko.UserId,
                 ko.GlobalOrderStatus,
                 ko.TotalPrice,
                 ko.CreatedAt,

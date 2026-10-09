@@ -5,6 +5,6 @@ using OrderDispatch.Contracts.Dtos;
 namespace OrderService.Features.Orders.CreateOrder;
 
 public record CreateOrderCommand(
-    string CustomerId,
+    string UserId,
     [Range(0.01, int.MaxValue)] decimal TotalPrice = 100
 ) : IRequest<OrderDto>;

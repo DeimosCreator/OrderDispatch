@@ -13,7 +13,7 @@ public class GetOrderQueryHandler(AppDbContext db) : IRequestHandler<GetOrderQue
 
         if (order == null) return null;
         
-        var orderDto = new OrderDto(order.Id, order.CustomerId, order.Status, order.TotalPrice, order.CreatedAt,
+        var orderDto = new OrderDto(order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt,
             order.UpdatedAt);
 
         return orderDto;

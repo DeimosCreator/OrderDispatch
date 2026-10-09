@@ -4,7 +4,7 @@ namespace OrderDispatch.Contracts.Dtos;
 
 public record OrderDto(
     int Id,
-    string CustomerId,
+    string UserId,
     OrderStatus Status,
     decimal TotalPrice,
     DateTime CreatedAt,

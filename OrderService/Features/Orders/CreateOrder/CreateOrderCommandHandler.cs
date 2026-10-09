@@ -13,7 +13,7 @@ public class CreateOrderCommandHandler(AppDbContext db, IPublishEndpoint publish
     {
         var order = new Order
         {
-            CustomerId = request.CustomerId,
+            UserId = request.UserId,
             TotalPrice = request.TotalPrice
         };
 
@@ -21,9 +21,9 @@ public class CreateOrderCommandHandler(AppDbContext db, IPublishEndpoint publish
         await db.SaveChangesAsync(cancellationToken);
 
         await publishEndpoint.Publish(new OrderCreatedEvent(
-            order.Id, order.CustomerId, order.Status, order.TotalPrice, order.CreatedAt), cancellationToken);
+            order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt), cancellationToken);
 
-        var orderDto = new OrderDto(order.Id, order.CustomerId, order.Status, order.TotalPrice, order.CreatedAt,
+        var orderDto = new OrderDto(order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt,
             order.UpdatedAt);
         
         return orderDto;
