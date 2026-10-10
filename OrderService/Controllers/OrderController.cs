@@ -46,13 +46,6 @@ public class OrderController(ISender sender) : BaseController
         
         return Ok(order);
     }
-
-    [HttpGet("batch")]
-    public async Task<IActionResult> GetOrdersBatch([FromBody] GetOrdersBatchQuery ordersBatchQuery)
-    {
-        var orders = await sender.Send(ordersBatchQuery);
-        return Ok(orders);
-    }
     
     [HttpGet("{id:int}/status")]
     public async Task<IActionResult> GetOrderStatus(int id)
