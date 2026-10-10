@@ -5,7 +5,6 @@ using OrderService.Features.Orders.CancelOrder;
 using OrderService.Features.Orders.CreateOrder;
 using OrderService.Features.Orders.GetOrder;
 using OrderService.Features.Orders.GetOrders;
-using OrderService.Features.Orders.GetOrdersBatch;
 using OrderService.Features.Orders.GetOrderStatus;
 using OrderService.Features.Orders.PayOrder;
 using OrderService.Models.Enities.Enums;
