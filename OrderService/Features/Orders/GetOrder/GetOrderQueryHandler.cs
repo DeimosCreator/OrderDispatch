@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using OrderService.Data;
 using OrderDispatch.Contracts.Dtos;
+using OrderService.Data;
 
 namespace OrderService.Features.Orders.GetOrder;
 
@@ -9,10 +9,11 @@ public class GetOrderQueryHandler(AppDbContext db) : IRequestHandler<GetOrderQue
 {
     public async Task<OrderDto?> Handle(GetOrderQuery request, CancellationToken cancellationToken)
     {
-        var order = await db.Orders.FirstOrDefaultAsync(order => order.Id == request.Id, cancellationToken: cancellationToken);
+        var order = await db.Orders.FirstOrDefaultAsync(
+            order => order.UserId == request.UserId && order.Id == request.Id, cancellationToken);
 
         if (order == null) return null;
-        
+
         var orderDto = new OrderDto(order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt,
             order.UpdatedAt);
 

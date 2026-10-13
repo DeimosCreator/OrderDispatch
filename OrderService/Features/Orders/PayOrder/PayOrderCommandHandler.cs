@@ -8,24 +8,23 @@ using OrderService.Models.Enities.Enums;
 
 namespace OrderService.Features.Orders.PayOrder;
 
-public class PayOrderCommandHandler(AppDbContext db, IPublishEndpoint publishEndpoint) : IRequestHandler<PayOrderCommand, PayOrderResult>
+public class PayOrderCommandHandler(AppDbContext db, IPublishEndpoint publishEndpoint)
+    : IRequestHandler<PayOrderCommand, PayOrderResult>
 {
     public async Task<PayOrderResult> Handle(PayOrderCommand request, CancellationToken cancellationToken)
     {
-        var order = await db.Orders.FirstOrDefaultAsync(order => order.Id == request.Id, cancellationToken: cancellationToken);
+        var order = await db.Orders.FirstOrDefaultAsync(
+            order => order.UserId == request.UserId && order.Id == request.Id, cancellationToken);
 
-        if (order == null)
-        {
-            return PayOrderResult.NotFound;
-        }
-        
+        if (order == null) return PayOrderResult.NotFound;
+
         if (!order.TransitionTo(OrderStatus.Paid)) return PayOrderResult.CannotPaid;
-        
+
         await db.SaveChangesAsync(cancellationToken);
 
         await publishEndpoint.Publish(new OrderStatusChangedEvent(order.Id, order.Status, order.UpdatedAt),
             cancellationToken);
-        
+
         return PayOrderResult.Paid;
     }
 }

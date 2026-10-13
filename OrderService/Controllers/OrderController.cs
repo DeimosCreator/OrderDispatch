@@ -19,7 +19,8 @@ public class OrderController(ISender sender) : BaseController
     [HttpGet]
     public async Task<IActionResult> GetOrders()
     {
-        var orders = await sender.Send(new GetOrdersQuery());
+        var userId = GetUserId();
+        var orders = await sender.Send(new GetOrdersQuery(userId));
         return Ok(orders);
     }
     
@@ -37,7 +38,8 @@ public class OrderController(ISender sender) : BaseController
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetOrder(int id)
     {
-        var order = await sender.Send(new GetOrderQuery(id));
+        var userId = GetUserId();
+        var order = await sender.Send(new GetOrderQuery(id, userId));
         if (order == null)
         {
             return BadRequest("Заказ не найден");
@@ -49,7 +51,8 @@ public class OrderController(ISender sender) : BaseController
     [HttpGet("{id:int}/status")]
     public async Task<IActionResult> GetOrderStatus(int id)
     {
-        var status = await sender.Send(new GetOrderStatusQuery(id));
+        var userId = GetUserId();
+        var status = await sender.Send(new GetOrderStatusQuery(id, userId));
         if (status == null)
         {
             return BadRequest("Заказ не найден");
@@ -61,7 +64,8 @@ public class OrderController(ISender sender) : BaseController
     [HttpPost("{id:int}/pay")]
     public async Task<IActionResult> PayOrder(int id)
     {
-        var result = await sender.Send(new PayOrderCommand(id));
+        var userId = GetUserId();
+        var result = await sender.Send(new PayOrderCommand(id, userId));
 
         return result switch
         {
@@ -81,7 +85,8 @@ public class OrderController(ISender sender) : BaseController
     [HttpPost("{id:int}/cancel")]
     public async Task<IActionResult> CancelOrder(int id)
     {
-        var result = await sender.Send(new CancelOrderCommand(id));
+        var userId = GetUserId();
+        var result = await sender.Send(new CancelOrderCommand(id, userId));
 
         return result switch
         {

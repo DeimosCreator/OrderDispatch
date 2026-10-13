@@ -10,15 +10,13 @@ public class CancelOrderCommandHandler(AppDbContext db) : IRequestHandler<Cancel
 {
     public async Task<CancelOrderResult> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
     {
-        var order = await db.Orders.FirstOrDefaultAsync(order => order.Id == request.Id, cancellationToken: cancellationToken);
+        var order = await db.Orders.FirstOrDefaultAsync(
+            order => order.UserId == request.UserId && order.Id == request.Id, cancellationToken);
 
-        if (order == null)
-        {
-            return CancelOrderResult.NotFound;
-        }
+        if (order == null) return CancelOrderResult.NotFound;
 
         if (!order.TransitionTo(OrderStatus.Cancelled)) return CancelOrderResult.CannotCancel;
-        
+
         await db.SaveChangesAsync(cancellationToken);
         return CancelOrderResult.Cancelled;
     }
