@@ -17,6 +17,16 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSwagger", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
 builder.Services.AddMassTransit(x =>
@@ -38,7 +48,7 @@ builder.Services.AddMassTransit(x =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY");
+        options.MetadataAddress = Environment.GetEnvironmentVariable("KEYCLOAK_METADATA_ADDRESS")!;
         
         options.RequireHttpsMetadata = false;
         
@@ -46,7 +56,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateAudience = false,
             ValidateIssuer = true,
-            ValidIssuer = options.Authority,
+            ValidIssuer = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY"),
             ValidateLifetime = true
         };
     });
@@ -58,23 +68,36 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseUrls = true;
 });
 
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddOpenApi(options =>
 {
-    options.SupportNonNullableReferenceTypes();
-
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddDocumentTransformer((document, _, _) =>
     {
-        Name = "Authorization",
-        Description = "Введите токен в формате: Bearer {ваш_токен_из_keycloak}",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT"
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+        document.Components.SecuritySchemes["Bearer"] =
+            new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Description = "Введите JWT-токен",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT"
+            };
+
+        return Task.CompletedTask;
     });
 
-    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    options.AddOperationTransformer((operation, context, _) =>
     {
-        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        operation.Security ??= [];
+        operation.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = []
+        });
+
+        return Task.CompletedTask;
     });
 });
 
@@ -87,10 +110,12 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-app.MapOpenApi();
-app.MapControllers();
+app.UseCors("AllowSwagger");
+app.MapOpenApi().RequireCors("AllowSwagger"); 
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();

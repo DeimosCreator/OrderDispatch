@@ -3,6 +3,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 DotNetEnv.Env.Load();
 
@@ -50,16 +51,42 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthentication();
 
 builder.Services.Configure<RouteOptions>(options =>
 {
     options.LowercaseUrls = true;
 });
 
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddOpenApi(options =>
 {
-    options.SupportNonNullableReferenceTypes(); 
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Components ??= new OpenApiComponents();
+
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+        document.Components.SecuritySchemes["Bearer"] =
+            new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Description = "Введите JWT-токен из Keycloak",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT"
+            };
+
+        document.Security ??= [];
+        document.Security.Add(
+            new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference(
+                    "Bearer", document)] = []
+            });
+
+        return Task.CompletedTask;
+    });
 });
 
 var app = builder.Build();

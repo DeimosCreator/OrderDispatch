@@ -60,11 +60,14 @@
       RABBITMQ_USER: "${RABBITMQ_USER}"
       RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
       KEYCLOAK_AUTHORITY: "${KEYCLOAK_AUTHORITY}"
+      KEYCLOAK_METADATA_ADDRESS: "${KEYCLOAK_METADATA_ADDRESS}"
     depends_on:
       db:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    extra_hosts:
+      - "localhost:host-gateway"
   
   kitchen-service:
     build:
@@ -82,6 +85,8 @@
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    extra_hosts:
+      - "localhost:host-gateway"
   
 volumes:
   postgres-data:
