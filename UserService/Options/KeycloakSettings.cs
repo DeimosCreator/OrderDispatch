@@ -6,4 +6,5 @@ public class KeycloakSettings
     public string Url { get; set; } = string.Empty;
     public string AdminClientId { get; set; } = string.Empty;
     public string AdminClientSecret { get; set; } = string.Empty;
+    public string LoginClientId { get; set; } = string.Empty;
 }

@@ -7,8 +7,7 @@ namespace UserService.Features.Users.LoginUser;
 
 public class LoginUserCommandHandler(
     IHttpClientFactory httpClientFactory,
-    IOptions<KeycloakSettings> keycloakOptions,
-    IConfiguration configuration) : IRequestHandler<LoginUserCommand, TokenResponse?>
+    IOptions<KeycloakSettings> keycloakOptions) : IRequestHandler<LoginUserCommand, TokenResponse?>
 {
     public async Task<TokenResponse?> Handle(LoginUserCommand request, CancellationToken cancellationToken)
     {
@@ -18,7 +17,7 @@ public class LoginUserCommandHandler(
         var bodyParams = new Dictionary<string, string>
         {
             { "grant_type", "password" },
-            { "client_id", configuration["KEYCLOAK_LOGIN_CLIENT_ID"] ?? "api-gateway" },
+            { "client_id", keycloakOptions.Value.LoginClientId },
             { "username", request.Username },
             { "password", request.Password }
         };
