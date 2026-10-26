@@ -21,11 +21,20 @@ public class UserController(ISender sender) : BaseController
         {
             return BadRequest("Пользователь уже существует");
         }
-        
-        return CreatedAtAction(
-            nameof(GetUser),
-            new { id = user.Id }, 
-            user);
+
+        var loginCommand = new LoginUserCommand(userCommand.UserName, userCommand.Password);
+        var token = await sender.Send(loginCommand);
+
+        if (token == null)
+        {
+            return BadRequest();
+        }
+
+        return Ok(new
+        {
+            User = user,
+            Tokens = token
+        });
     }
 
     [HttpPost("login")]
