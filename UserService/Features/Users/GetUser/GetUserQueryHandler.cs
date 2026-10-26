@@ -13,13 +13,16 @@ public class GetUserQueryHandler(
 {
     public async Task<User?> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
-        var currentUser =
-            await keycloakClient.GetUserAsync(keycloakOptions.Value.Realm, request.UserId, cancellationToken);
+        var currentUserRole = (await keycloakClient.GetRealmRoleMappingsForUserAsync(keycloakOptions.Value.Realm,
+            request.UserId, cancellationToken)).Select(role => role.Name.ToString());
+        
+        var userRole = (await keycloakClient.GetRealmRoleMappingsForUserAsync(keycloakOptions.Value.Realm,
+            request.Id, cancellationToken)).Select(role => role.Name.ToString());
+
+        if (request.Id != request.UserId &&
+            !AppRoles.IsHigher(currentUserRole, userRole)) return null;
+
         var user = await keycloakClient.GetUserAsync(keycloakOptions.Value.Realm, request.Id, cancellationToken);
-
-        if (currentUser.Id != user.Id &&
-            !AppRoles.IsHigher(currentUser.RealmRoles.First(), user.RealmRoles.First())) return null;
-
         return user;
     }
 }

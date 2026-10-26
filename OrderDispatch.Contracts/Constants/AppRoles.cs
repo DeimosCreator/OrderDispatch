@@ -9,7 +9,7 @@ public static class AppRoles
     public const string Courier = "courier";
     public const string Customer = "customer";
 
-    public static int GetRank(string role) => role switch
+    private static int GetRank(string role) => role switch
     {
         SuperAdmin => 6,
         CompanyOwner => 5,
@@ -20,11 +20,25 @@ public static class AppRoles
         _ => 0
     };
 
-    public static bool IsHigher(string currentRole, string targetRole)
+    private static int GetMaxRank(IEnumerable<string> userRoles)
     {
-        var currentRank = GetRank(currentRole);
-        var targetRank = GetRank(targetRole);
+        return userRoles
+            .Select(GetRank)
+            .DefaultIfEmpty(0)
+            .Max();
+    }
 
-        return currentRank > targetRank;
+    public static bool IsHigher(IEnumerable<string> callerRoles, IEnumerable<string> targetRoles)
+    {
+        var callerRank = GetMaxRank(callerRoles);
+        var targetRank = GetMaxRank(targetRoles);
+
+        return callerRank > targetRank;
+    }
+
+    public static IEnumerable<string> GetFilteredRoles(IEnumerable<string> unFilteredRoles)
+    {
+        var filteredRoles = unFilteredRoles.Where(role => GetRank(role) != 0);
+        return filteredRoles;
     }
 }

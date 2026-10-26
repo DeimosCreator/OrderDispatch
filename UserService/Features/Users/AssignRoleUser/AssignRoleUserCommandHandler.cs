@@ -1,6 +1,6 @@
 ﻿using Flurl.Http;
 using Keycloak.Net;
-using Keycloak.Net.Models.Users;
+using Keycloak.Net.Models.Roles;
 using MediatR;
 using Microsoft.Extensions.Options;
 using OrderDispatch.Contracts.Constants;
@@ -15,29 +15,53 @@ public class AssignRoleUserCommandHandler(
 {
     public async Task<AssignRoleUserResult> Handle(AssignRoleUserCommand request, CancellationToken cancellationToken)
     {
-        User user;
+        var realm = keycloakOptions.Value.Realm;
+
+        Role[] callerRoleObjects;
+        Role[] targetUserRoleObjects;
+
         try
         {
-            user = await keycloakClient.GetUserAsync(keycloakOptions.Value.Realm, request.AssignRoleUserId,
-                cancellationToken);
+            callerRoleObjects =
+                (await keycloakClient.GetRealmRoleMappingsForUserAsync(realm, request.UserId, cancellationToken))
+                .ToArray();
+            targetUserRoleObjects =
+                (await keycloakClient.GetRealmRoleMappingsForUserAsync(realm, request.AssignRoleUserId,
+                    cancellationToken)).ToArray();
         }
         catch (FlurlHttpException ex) when (ex.Call.Response.StatusCode == 404)
         {
             return AssignRoleUserResult.NotFound;
         }
 
-        var currentUser =
-            await keycloakClient.GetUserAsync(keycloakOptions.Value.Realm, request.UserId, cancellationToken);
+        var currentUserRoles = callerRoleObjects.Select(r => r.Name).ToArray();
+        var targetUserRoles = targetUserRoleObjects.Select(r => r.Name);
 
-        if (!(AppRoles.IsHigher(currentUser.RealmRoles.First(), user.RealmRoles.First()) &&
-              AppRoles.IsHigher(currentUser.RealmRoles.First(), request.Role)))
+        if (!AppRoles.IsHigher(currentUserRoles, targetUserRoles) ||
+            !AppRoles.IsHigher(currentUserRoles, [request.Role]))
             return AssignRoleUserResult.CannotAssignRole;
 
-        var role = await keycloakClient.GetRoleByNameAsync(keycloakOptions.Value.Realm, request.Role,
+        Role newRole;
+        try
+        {
+            newRole = await keycloakClient.GetRoleByNameAsync(realm, request.Role, cancellationToken);
+        }
+        catch (FlurlHttpException ex) when (ex.Call.Response.StatusCode == 404)
+        {
+            return AssignRoleUserResult.CannotAssignRole;
+        }
+
+        var rolesToDelete = targetUserRoleObjects
+            .Where(r => AppRoles.GetFilteredRoles([r.Name]).Any())
+            .ToArray();
+
+        if (rolesToDelete.Length > 0)
+            await keycloakClient.DeleteRealmRoleMappingsFromUserAsync(realm, request.AssignRoleUserId, rolesToDelete,
+                cancellationToken);
+
+        await keycloakClient.AddRealmRoleMappingsToUserAsync(realm, request.AssignRoleUserId, [newRole],
             cancellationToken);
 
-        await keycloakClient.AddRealmRoleMappingsToUserAsync(keycloakOptions.Value.Realm, user.Id, [role],
-            cancellationToken);
         return AssignRoleUserResult.AssignRole;
     }
 }
