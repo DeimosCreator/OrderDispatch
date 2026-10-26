@@ -41,8 +41,6 @@ public class RegisterUserCommandHandler(
             return null;
         }
 
-        await keycloakClient.CreateUserAsync(keycloakOptions.Value.Realm, user, cancellationToken);
-
         var createdUser = (await keycloakClient.GetUsersAsync(keycloakOptions.Value.Realm, username: request.UserName,
             cancellationToken: cancellationToken)).First();
         return createdUser;
