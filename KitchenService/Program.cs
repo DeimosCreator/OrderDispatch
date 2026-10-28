@@ -1,9 +1,11 @@
 using KitchenService.Data;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OrderDispatch.Contracts.Security;
 
 DotNetEnv.Env.Load();
 
@@ -16,6 +18,16 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSwagger", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
@@ -38,7 +50,7 @@ builder.Services.AddMassTransit(x =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY");
+        options.MetadataAddress = Environment.GetEnvironmentVariable("KEYCLOAK_METADATA_ADDRESS")!;
         
         options.RequireHttpsMetadata = false;
         
@@ -46,11 +58,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateAudience = false,
             ValidateIssuer = true,
-            ValidIssuer = options.Authority,
-            ValidateLifetime = true
+            ValidIssuer = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY"),
+            ValidateLifetime = true,
+            RoleClaimType = "role" 
         };
     });
 
+builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<IAuthorizationHandler, MinRankAuthorizationHandler>();
 
 builder.Services.Configure<RouteOptions>(options =>
 {
@@ -62,28 +78,29 @@ builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer((document, _, _) =>
     {
         document.Components ??= new OpenApiComponents();
-
-        document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
 
         document.Components.SecuritySchemes["Bearer"] =
             new OpenApiSecurityScheme
             {
                 Name = "Authorization",
-                Description = "Введите JWT-токен из Keycloak",
+                Description = "Введите JWT-токен",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
                 BearerFormat = "JWT"
             };
 
-        document.Security ??= [];
-        document.Security.Add(
-            new OpenApiSecurityRequirement
-            {
-                [new OpenApiSecuritySchemeReference(
-                    "Bearer", document)] = []
-            });
+        return Task.CompletedTask;
+    });
+
+    options.AddOperationTransformer((operation, context, _) =>
+    {
+        operation.Security ??= [];
+        operation.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = []
+        });
 
         return Task.CompletedTask;
     });
@@ -98,10 +115,12 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-app.MapOpenApi();
-app.MapControllers();
+app.UseCors("AllowSwagger");
+app.MapOpenApi().RequireCors("AllowSwagger"); 
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();

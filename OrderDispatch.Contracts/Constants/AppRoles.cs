@@ -9,7 +9,7 @@ public static class AppRoles
     public const string Courier = "courier";
     public const string Customer = "customer";
 
-    private static int GetRank(string role) => role switch
+    public static int GetRank(string role) => role switch
     {
         SuperAdmin => 6,
         CompanyOwner => 5,
@@ -19,26 +19,26 @@ public static class AppRoles
         Customer => 1,
         _ => 0
     };
-
-    private static int GetMaxRank(IEnumerable<string> userRoles)
+    
+    private static string GetRole(int role) => role switch
     {
-        return userRoles
-            .Select(GetRank)
-            .DefaultIfEmpty(0)
-            .Max();
-    }
+         6 => SuperAdmin,
+         5 => CompanyOwner,
+         4 => BranchManager,
+         3 => Chef,
+         2 => Courier,
+         1 => Customer,
+         _ => ""
+    };
 
-    public static bool IsHigher(IEnumerable<string> callerRoles, IEnumerable<string> targetRoles)
-    {
-        var callerRank = GetMaxRank(callerRoles);
-        var targetRank = GetMaxRank(targetRoles);
+    public static int GetMaxRank(IEnumerable<string> userRoles) => userRoles.Select(GetRank).DefaultIfEmpty(0).Max();
 
-        return callerRank > targetRank;
-    }
+    public static bool IsHigher(IEnumerable<string> callerRoles, IEnumerable<string> targetRoles) =>
+        GetMaxRank(callerRoles) > GetMaxRank(targetRoles);
 
-    public static IEnumerable<string> GetFilteredRoles(IEnumerable<string> unFilteredRoles)
-    {
-        var filteredRoles = unFilteredRoles.Where(role => GetRank(role) != 0);
-        return filteredRoles;
-    }
+    public static IEnumerable<string> GetFilteredRoles(IEnumerable<string> unFilteredRoles) =>
+        unFilteredRoles.Where(role => GetRank(role) != 0);
+
+    public static string GetAllRoles(string role) =>
+        string.Join(",", Enumerable.Range(1, GetRank(role)).Select(GetRole).Where(r => !string.IsNullOrEmpty(r)));
 }

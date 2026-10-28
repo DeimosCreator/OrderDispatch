@@ -102,6 +102,7 @@
       RABBITMQ_USER: "${RABBITMQ_USER}"
       RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
       KEYCLOAK_AUTHORITY: "${KEYCLOAK_AUTHORITY}"
+      KEYCLOAK_METADATA_ADDRESS: "${KEYCLOAK_METADATA_ADDRESS}"
     depends_on:
       db:
         condition: service_healthy
