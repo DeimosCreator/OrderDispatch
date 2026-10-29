@@ -1,4 +1,5 @@
 using Keycloak.Net;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -47,6 +48,21 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumers(typeof(Program).Assembly);
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(Environment.GetEnvironmentVariable("RABBITMQ_HOST")!, "/", h =>
+        {
+            h.Username(Environment.GetEnvironmentVariable("RABBITMQ_USER")!);
+            h.Password(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD")!);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

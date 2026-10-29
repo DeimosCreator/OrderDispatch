@@ -1,6 +1,7 @@
 ﻿using KitchenService.Data;
 using KitchenService.Models.Dtos;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace KitchenService.Features.Kitchen.CreateKitchen;
 
@@ -18,6 +19,11 @@ public class CreateKitchenCommandHandler(AppDbContext db) : IRequestHandler<Crea
 
         db.Kitchens.Add(kitchen);
         await db.SaveChangesAsync(cancellationToken);
+        
+        await db.KitchenStaffs
+            .Where(staff => staff.KitchenId == null)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(staff => staff.KitchenId, kitchen.Id), cancellationToken);
 
         var kitchenDto = new KitchenDto(kitchen.Id, kitchen.Name, kitchen.Capacity, kitchen.CurrentLoad,
             kitchen.IsActive);

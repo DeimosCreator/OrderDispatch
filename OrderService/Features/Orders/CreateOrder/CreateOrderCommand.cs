@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MediatR;
-using OrderDispatch.Contracts.Dtos;
+using OrderDispatch.Contracts.Dtos.Orders;
 
 namespace OrderService.Features.Orders.CreateOrder;
 

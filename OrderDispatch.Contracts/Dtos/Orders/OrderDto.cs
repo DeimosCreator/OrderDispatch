@@ -1,6 +1,6 @@
 ﻿using OrderDispatch.Contracts.Enums;
 
-namespace OrderDispatch.Contracts.Dtos;
+namespace OrderDispatch.Contracts.Dtos.Orders;
 
 public record OrderDto(
     int Id,

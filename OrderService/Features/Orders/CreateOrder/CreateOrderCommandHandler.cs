@@ -1,7 +1,7 @@
 ﻿using MassTransit;
 using MediatR;
-using OrderDispatch.Contracts.Dtos;
-using OrderDispatch.Contracts.Messaging.Events;
+using OrderDispatch.Contracts.Dtos.Orders;
+using OrderDispatch.Contracts.Messaging.Events.Orders;
 using OrderService.Data;
 using OrderService.Models.Entities;
 

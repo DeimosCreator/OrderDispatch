@@ -1,6 +1,6 @@
 ﻿using OrderDispatch.Contracts.Enums;
 
-namespace OrderDispatch.Contracts.Messaging.Events;
+namespace OrderDispatch.Contracts.Messaging.Events.Orders;
 
 public record OrderStatusChangedEvent(
     int OrderId, 

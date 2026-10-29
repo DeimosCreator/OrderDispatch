@@ -1,9 +1,11 @@
 ﻿using Flurl.Http;
 using Keycloak.Net;
 using Keycloak.Net.Models.Roles;
+using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Options;
 using OrderDispatch.Contracts.Constants;
+using OrderDispatch.Contracts.Messaging.Events.Users;
 using UserService.Models.Enums;
 using UserService.Options;
 
@@ -11,7 +13,8 @@ namespace UserService.Features.Users.AssignRoleUser;
 
 public class AssignRoleUserCommandHandler(
     KeycloakClient keycloakClient,
-    IOptions<KeycloakSettings> keycloakOptions) : IRequestHandler<AssignRoleUserCommand, AssignRoleUserResult>
+    IOptions<KeycloakSettings> keycloakOptions,
+    IPublishEndpoint publishEndpoint) : IRequestHandler<AssignRoleUserCommand, AssignRoleUserResult>
 {
     public async Task<AssignRoleUserResult> Handle(AssignRoleUserCommand request, CancellationToken cancellationToken)
     {
@@ -60,6 +63,9 @@ public class AssignRoleUserCommandHandler(
                 cancellationToken);
 
         await keycloakClient.AddRealmRoleMappingsToUserAsync(realm, request.AssignRoleUserId, [newRole],
+            cancellationToken);
+
+        await publishEndpoint.Publish(new UserRoleChangedEvent(request.AssignRoleUserId, newRole.Name),
             cancellationToken);
 
         return AssignRoleUserResult.AssignRole;

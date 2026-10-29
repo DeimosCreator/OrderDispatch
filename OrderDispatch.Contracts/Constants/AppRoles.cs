@@ -31,6 +31,8 @@ public static class AppRoles
          _ => ""
     };
 
+    public static string GetMaxRole(IEnumerable<string> userRoles) => userRoles.OrderByDescending(GetRank).First();
+
     public static int GetMaxRank(IEnumerable<string> userRoles) => userRoles.Select(GetRank).DefaultIfEmpty(0).Max();
 
     public static bool IsHigher(IEnumerable<string> callerRoles, IEnumerable<string> targetRoles) =>

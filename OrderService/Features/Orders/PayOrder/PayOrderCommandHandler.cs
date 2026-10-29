@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Enums;
 using OrderDispatch.Contracts.Messaging.Events;
+using OrderDispatch.Contracts.Messaging.Events.Orders;
 using OrderService.Data;
 using OrderService.Models.Entities.Enums;
 

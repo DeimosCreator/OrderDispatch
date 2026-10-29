@@ -1,6 +1,4 @@
-﻿using KitchenService.Models.Enities;
-
-namespace KitchenService.Models.Entities;
+﻿namespace KitchenService.Models.Entities;
 
 public class Kitchen
 {
@@ -11,4 +9,5 @@ public class Kitchen
     public bool IsActive { get; set; }
 
     public List<KitchenOrder> KitchenOrders { get; set; } = [];
+    public List<KitchenStaff> KitchenStaffs { get; set; } = [];
 }
