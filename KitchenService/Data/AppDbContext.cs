@@ -1,4 +1,5 @@
 ﻿using KitchenService.Models.Enities;
+using KitchenService.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace KitchenService.Data;

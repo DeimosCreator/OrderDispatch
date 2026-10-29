@@ -2,7 +2,7 @@
 using KitchenService.StateMachine;
 using OrderDispatch.Contracts.Enums;
 
-namespace KitchenService.Models.Enities;
+namespace KitchenService.Models.Entities;
 
 public class KitchenOrder
 {

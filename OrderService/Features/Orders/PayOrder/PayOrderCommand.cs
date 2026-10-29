@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using OrderService.Models.Enities.Enums;
+using OrderService.Models.Entities.Enums;
 
 namespace OrderService.Features.Orders.PayOrder;
 

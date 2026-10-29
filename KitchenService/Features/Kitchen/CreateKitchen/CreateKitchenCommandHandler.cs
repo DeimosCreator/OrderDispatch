@@ -8,7 +8,7 @@ public class CreateKitchenCommandHandler(AppDbContext db) : IRequestHandler<Crea
 {
     public async Task<KitchenDto> Handle(CreateKitchenCommand request, CancellationToken cancellationToken)
     {
-        var kitchen = new Models.Enities.Kitchen
+        var kitchen = new Models.Entities.Kitchen
         {
             Name = request.Name,
             Capacity = request.Capacity,

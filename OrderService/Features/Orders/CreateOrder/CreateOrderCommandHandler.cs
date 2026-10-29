@@ -3,7 +3,7 @@ using MediatR;
 using OrderDispatch.Contracts.Dtos;
 using OrderDispatch.Contracts.Messaging.Events;
 using OrderService.Data;
-using OrderService.Models.Enities;
+using OrderService.Models.Entities;
 
 namespace OrderService.Features.Orders.CreateOrder;
 

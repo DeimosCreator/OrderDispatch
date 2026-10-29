@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Enums;
 using OrderService.Data;
-using OrderService.Models.Enities.Enums;
+using OrderService.Models.Entities.Enums;
 
 namespace OrderService.Features.Orders.CancelOrder;
 

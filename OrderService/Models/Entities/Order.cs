@@ -1,8 +1,7 @@
 ﻿using OrderDispatch.Contracts.Enums;
-using OrderService.Models.Enities.Enums;
 using OrderService.StateMachine;
 
-namespace OrderService.Models.Enities;
+namespace OrderService.Models.Entities;
 
 public class Order
 {

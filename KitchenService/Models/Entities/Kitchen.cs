@@ -1,4 +1,6 @@
-﻿namespace KitchenService.Models.Enities;
+﻿using KitchenService.Models.Enities;
+
+namespace KitchenService.Models.Entities;
 
 public class Kitchen
 {

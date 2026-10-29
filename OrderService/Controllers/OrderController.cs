@@ -7,7 +7,7 @@ using OrderService.Features.Orders.GetOrder;
 using OrderService.Features.Orders.GetOrders;
 using OrderService.Features.Orders.GetOrderStatus;
 using OrderService.Features.Orders.PayOrder;
-using OrderService.Models.Enities.Enums;
+using OrderService.Models.Entities.Enums;
 
 namespace OrderService.Controllers;
 

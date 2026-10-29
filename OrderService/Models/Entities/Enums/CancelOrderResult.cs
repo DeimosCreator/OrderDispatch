@@ -1,4 +1,4 @@
-﻿namespace OrderService.Models.Enities.Enums;
+﻿namespace OrderService.Models.Entities.Enums;
 
 public enum CancelOrderResult
 {

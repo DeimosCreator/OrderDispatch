@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Enums;
 using OrderDispatch.Contracts.Messaging.Events;
 using OrderService.Data;
-using OrderService.Models.Enities.Enums;
+using OrderService.Models.Entities.Enums;
 
 namespace OrderService.Features.Orders.PayOrder;
 

@@ -22,7 +22,7 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
                               / (float)kitchen.Capacity <= 1f)
             .FirstOrDefaultAsync();
 
-        var kitchenOrder = new Models.Enities.KitchenOrder
+        var kitchenOrder = new Models.Entities.KitchenOrder
         {
             OrderId = msg.OrderId,
             UserId = msg.UserId,

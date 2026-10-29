@@ -33,7 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\Enities\Dto\" />
+      <Folder Include="Models\Entities\Dto\" />
     </ItemGroup>
 
 </Project>
