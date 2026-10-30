@@ -12,7 +12,7 @@ namespace KitchenService.Controllers;
 
 [ApiController]
 [Route("api/kitchens")]
-public class KitchenController(ISender sender) : ControllerBase
+public class KitchenController(ISender sender) : BaseController
 {
     [AuthorizeMinRank(AppRoles.CompanyOwner)]
     [HttpPost]

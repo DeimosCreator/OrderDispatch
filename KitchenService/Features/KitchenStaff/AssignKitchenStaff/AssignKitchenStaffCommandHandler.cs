@@ -19,14 +19,14 @@ public class AssignKitchenStaffCommandHandler(
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (kitchen == null)
-            return AssignKitchenStaffStatus.NotFound;
+            return AssignKitchenStaffStatus.KitchenNotFound;
         
         var assignStaffUserRole =
             (await requestClient.GetResponse<UserRoleResponse>(new GetUserRolesRequest(request.AssignStaffUserId),
                 cancellationToken)).Message.Role;
 
         if (assignStaffUserRole == null)
-            return AssignKitchenStaffStatus.NotFound;
+            return AssignKitchenStaffStatus.UserNotFound;
 
         if (assignStaffUserRole is not (AppRoles.Chef or AppRoles.BranchManager))
             return AssignKitchenStaffStatus.CannotAssignKitchenStaff;
@@ -43,7 +43,7 @@ public class AssignKitchenStaffCommandHandler(
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
         
         if (kitchenStaff == null)
-            return AssignKitchenStaffStatus.NotFound;
+            return AssignKitchenStaffStatus.UserNotFound;
 
         kitchenStaff.KitchenId = request.KitchenId;
         await db.SaveChangesAsync(cancellationToken);

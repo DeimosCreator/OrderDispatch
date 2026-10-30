@@ -22,7 +22,7 @@ namespace KitchenService.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("KitchenService.Models.Enities.Kitchen", b =>
+            modelBuilder.Entity("KitchenService.Models.Entities.Kitchen", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,7 +48,7 @@ namespace KitchenService.Migrations
                     b.ToTable("Kitchens");
                 });
 
-            modelBuilder.Entity("KitchenService.Models.Enities.KitchenOrder", b =>
+            modelBuilder.Entity("KitchenService.Models.Entities.KitchenOrder", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -97,18 +97,49 @@ namespace KitchenService.Migrations
                     b.ToTable("KitchenOrders");
                 });
 
-            modelBuilder.Entity("KitchenService.Models.Enities.KitchenOrder", b =>
+            modelBuilder.Entity("KitchenService.Models.Entities.KitchenStaff", b =>
                 {
-                    b.HasOne("KitchenService.Models.Enities.Kitchen", null)
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("KitchenId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KitchenId");
+
+                    b.ToTable("KitchenStaffs");
+                });
+
+            modelBuilder.Entity("KitchenService.Models.Entities.KitchenOrder", b =>
+                {
+                    b.HasOne("KitchenService.Models.Entities.Kitchen", null)
                         .WithMany("KitchenOrders")
                         .HasForeignKey("KitchenId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("KitchenService.Models.Enities.Kitchen", b =>
+            modelBuilder.Entity("KitchenService.Models.Entities.KitchenStaff", b =>
+                {
+                    b.HasOne("KitchenService.Models.Entities.Kitchen", null)
+                        .WithMany("KitchenStaffs")
+                        .HasForeignKey("KitchenId");
+                });
+
+            modelBuilder.Entity("KitchenService.Models.Entities.Kitchen", b =>
                 {
                     b.Navigation("KitchenOrders");
+
+                    b.Navigation("KitchenStaffs");
                 });
 #pragma warning restore 612, 618
         }

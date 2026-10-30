@@ -2,7 +2,8 @@
 
 public enum AssignKitchenStaffStatus
 {
-    NotFound,
+    KitchenNotFound,
+    UserNotFound,
     CannotAssignKitchenStaff,
     AssignKitchenStaff
 }

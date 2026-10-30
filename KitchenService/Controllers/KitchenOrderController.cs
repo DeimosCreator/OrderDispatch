@@ -11,7 +11,7 @@ namespace KitchenService.Controllers;
 
 [ApiController]
 [Route("api/kitchen-orders")]
-public class KitchenOrderController(ISender sender) : ControllerBase
+public class KitchenOrderController(ISender sender) : BaseController
 {
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetKitchenOrder(int id)
