@@ -1,4 +1,5 @@
 ﻿using KitchenService.Features.KitchenStaff.AssignKitchenStaff;
+using KitchenService.Features.KitchenStaff.GetKitchen;
 using KitchenService.Models.Entities.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -8,9 +9,9 @@ namespace KitchenService.Controllers;
 
 [ApiController]
 [Route("api/kitchen_staff")]
-[Authorize]
 public class KitchenStaffController(ISender sender) : BaseController
 {
+    [Authorize]
     [HttpPost("assign")]
     public async Task<IActionResult> AssignKitchenStaffOrder(
         [FromBody] AssignKitchenStaffCommand assignKitchenStaffCommand)
@@ -25,5 +26,19 @@ public class KitchenStaffController(ISender sender) : BaseController
             AssignKitchenStaffStatus.AssignKitchenStaff => Ok(),
             _ => BadRequest()
         };
+    }
+    
+    [Authorize]
+    [HttpGet("my-kitchen")]
+    public async Task<IActionResult> GetMyKitchen()
+    {
+        var userId = GetUserId();
+        var result = await sender.Send(new GetKitchenQuery(userId));
+        if (result == null)
+        {
+            return BadRequest("Кухня не найдена");
+        }
+
+        return Ok(result);
     }
 }
