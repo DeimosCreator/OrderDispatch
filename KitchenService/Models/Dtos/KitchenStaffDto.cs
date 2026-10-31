@@ -2,6 +2,6 @@
 
 public record KitchenStaffDto(
     int Id,
-    int KitchenId,
+    int? KitchenId,
     string UserId
 );
