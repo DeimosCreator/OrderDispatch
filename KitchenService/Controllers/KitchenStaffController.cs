@@ -24,8 +24,8 @@ public class KitchenStaffController(ISender sender) : BaseController
         var result = await sender.Send(assignKitchenStaffCommand with { UserId = userId });
         return result switch
         {
-            AssignKitchenStaffStatus.KitchenNotFound => BadRequest("Кухня не найдена"),
-            AssignKitchenStaffStatus.UserNotFound => BadRequest("Пользователь не найден"),
+            AssignKitchenStaffStatus.KitchenNotFound => NotFound("Кухня не найдена"),
+            AssignKitchenStaffStatus.UserNotFound => NotFound("Пользователь не найден"),
             AssignKitchenStaffStatus.CannotAssignKitchenStaff => Conflict("Не удалось назначить кухню"),
             AssignKitchenStaffStatus.AssignKitchenStaff => Ok(),
             _ => BadRequest()
@@ -40,7 +40,7 @@ public class KitchenStaffController(ISender sender) : BaseController
         var result = await sender.Send(new GetKitchenQuery(userId));
         if (result == null)
         {
-            return BadRequest("Кухня не найдена");
+            return NotFound("Кухня не найдена");
         }
 
         return Ok(result);
@@ -53,7 +53,7 @@ public class KitchenStaffController(ISender sender) : BaseController
         var result = await sender.Send(new GetKitchenStaffQuery(id));
         if (result == null)
         {
-            return BadRequest("Работник кухни не найден");
+            return NotFound("Работник кухни не найден");
         }
 
         return Ok(result);

@@ -42,7 +42,7 @@ public class OrderController(ISender sender) : BaseController
         var order = await sender.Send(new GetOrderQuery(id, userId));
         if (order == null)
         {
-            return BadRequest("Заказ не найден");
+            return NotFound("Заказ не найден");
         }
         
         return Ok(order);
@@ -55,7 +55,7 @@ public class OrderController(ISender sender) : BaseController
         var status = await sender.Send(new GetOrderStatusQuery(id, userId));
         if (status == null)
         {
-            return BadRequest("Заказ не найден");
+            return NotFound("Заказ не найден");
         }
         
         return Ok(status);

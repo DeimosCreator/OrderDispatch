@@ -33,7 +33,7 @@ public class KitchenController(ISender sender) : BaseController
         var kitchen = await sender.Send(new GetKitchenQuery(id));
         if (kitchen == null)
         {
-            return BadRequest("Кухня не найдена");
+            return NotFound("Кухня не найдена");
         }
 
         return Ok(kitchen);
@@ -54,7 +54,7 @@ public class KitchenController(ISender sender) : BaseController
         var load = await sender.Send(new GetKitchenLoadQuery(id));
         if (load == null)
         {
-            return BadRequest("Кухня не найдена");
+            return NotFound("Кухня не найдена");
         }
 
         return Ok(load);

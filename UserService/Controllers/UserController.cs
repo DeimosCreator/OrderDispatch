@@ -19,7 +19,7 @@ public class UserController(ISender sender) : BaseController
         var user = await sender.Send(userCommand);
         if (user == null)
         {
-            return BadRequest("Пользователь уже существует");
+            return Conflict("Пользователь уже существует");
         }
 
         var loginCommand = new LoginUserCommand(userCommand.UserName, userCommand.Password);
@@ -57,7 +57,7 @@ public class UserController(ISender sender) : BaseController
         var user = await sender.Send(new GetUserQuery(id, userId));
         if (user == null)
         {
-            return BadRequest("Пользователь не найден");
+            return NotFound("Пользователь не найден");
         }
 
         return Ok(user);
@@ -86,15 +86,9 @@ public class UserController(ISender sender) : BaseController
 
         return result switch
         {
-            AssignRoleUserResult.NotFound =>
-                NotFound("Пользователь не найден"),
-
-            AssignRoleUserResult.CannotAssignRole =>
-                Conflict("Нельзя назначить роль"),
-
-            AssignRoleUserResult.AssignRole =>
-                Ok("Роль назначена"),
-
+            AssignRoleUserResult.NotFound => NotFound("Пользователь не найден"),
+            AssignRoleUserResult.CannotAssignRole => Conflict("Нельзя назначить роль"),
+            AssignRoleUserResult.AssignRole => Ok("Роль назначена"),
             _ => StatusCode(500)
         };
     }
