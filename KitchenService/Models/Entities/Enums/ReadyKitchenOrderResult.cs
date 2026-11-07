@@ -1,4 +1,4 @@
-﻿namespace KitchenService.Models.Enities.Enums;
+﻿namespace KitchenService.Models.Entities.Enums;
 
 public enum ReadyKitchenOrderResult
 {

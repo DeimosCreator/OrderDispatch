@@ -1,4 +1,4 @@
-﻿using KitchenService.Models.Enities.Enums;
+﻿using KitchenService.Models.Entities.Enums;
 
 namespace KitchenService.StateMachine;
 

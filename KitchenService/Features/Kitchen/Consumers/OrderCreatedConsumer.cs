@@ -1,5 +1,5 @@
 ﻿using KitchenService.Data;
-using KitchenService.Models.Enities.Enums;
+using KitchenService.Models.Entities.Enums;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Enums;

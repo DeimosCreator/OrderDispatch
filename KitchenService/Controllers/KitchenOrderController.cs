@@ -3,7 +3,7 @@ using KitchenService.Features.KitchenOrder.CancelKitchenOrder;
 using KitchenService.Features.KitchenOrder.GetKitchenOrder;
 using KitchenService.Features.KitchenOrder.PrepareKitchenOrder;
 using KitchenService.Features.KitchenOrder.ReadyKitchenOrder;
-using KitchenService.Models.Enities.Enums;
+using KitchenService.Models.Entities.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
