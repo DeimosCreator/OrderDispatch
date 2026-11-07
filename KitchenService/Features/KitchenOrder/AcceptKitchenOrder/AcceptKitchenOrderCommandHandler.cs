@@ -26,6 +26,8 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db) : IRequestHandler
         if (!kitchenOrder.TransitionTo(KitchenStatus.Accepted)) return AcceptKitchenOrderResult.CannotAccept;
 
         kitchen.CurrentLoad = kitchenCurrentLoad;
+        kitchenOrder.StartedAt = DateTime.UtcNow;
+        kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
         return AcceptKitchenOrderResult.Accepted;

@@ -16,6 +16,8 @@ public class CancelKitchenOrderCommandHandler(AppDbContext db)
         if (kitchenOrder == null) return CancelKitchenOrderResult.NotFound;
         
         if (!kitchenOrder.TransitionTo(KitchenStatus.Cancelled)) return CancelKitchenOrderResult.CannotCancel;
+        
+        kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
         return CancelKitchenOrderResult.Cancelled;

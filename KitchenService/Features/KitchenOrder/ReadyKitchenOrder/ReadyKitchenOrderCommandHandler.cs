@@ -22,8 +22,14 @@ public class ReadyKitchenOrderCommandHandler(AppDbContext db)
             .OrderByDescending(order => order.UpdatedAt)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (queuedKitchenOrder != null) queuedKitchenOrder.KitchenId = kitchenOrder.KitchenId;
-
+        if (queuedKitchenOrder != null)
+        {
+            queuedKitchenOrder.KitchenId = kitchenOrder.KitchenId;
+            queuedKitchenOrder.UpdatedAt = DateTime.UtcNow;
+        }
+        
+        kitchenOrder.UpdatedAt = DateTime.UtcNow;
+        
         await db.SaveChangesAsync(cancellationToken);
         return ReadyKitchenOrderResult.Ready;
     }
