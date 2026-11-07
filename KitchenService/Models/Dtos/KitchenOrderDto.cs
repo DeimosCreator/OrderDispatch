@@ -5,7 +5,7 @@ namespace KitchenService.Models.Dtos;
 public record KitchenOrderDto(
     int Id,
     int OrderId,
-    int KitchenId,
+    int? KitchenId,
     KitchenStatus Status,
     DateTime CreatedAt,
     DateTime UpdatedAt,

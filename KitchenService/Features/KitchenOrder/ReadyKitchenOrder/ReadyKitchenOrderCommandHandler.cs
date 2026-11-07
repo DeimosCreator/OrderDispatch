@@ -17,6 +17,13 @@ public class ReadyKitchenOrderCommandHandler(AppDbContext db)
         
         if (!kitchenOrder.TransitionTo(KitchenStatus.Ready)) return ReadyKitchenOrderResult.CannotReady;
 
+        var queuedKitchenOrder = await db.KitchenOrders
+            .Where(order => order.Status == KitchenStatus.Queued && order.KitchenId == null)
+            .OrderByDescending(order => order.UpdatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (queuedKitchenOrder != null) queuedKitchenOrder.KitchenId = kitchenOrder.KitchenId;
+
         await db.SaveChangesAsync(cancellationToken);
         return ReadyKitchenOrderResult.Ready;
     }

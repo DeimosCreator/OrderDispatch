@@ -29,13 +29,13 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
             UserId = msg.UserId,
             TotalPrice = msg.TotalPrice,
             GlobalOrderStatus = allowedKitchen != null ? msg.Status : OrderStatus.Rejected,
-            KitchenId = allowedKitchen?.Id ?? -1
+            KitchenId = allowedKitchen?.Id ?? null
         };
 
         if (allowedKitchen != null)
         {
             var activeCount = allowedKitchen.KitchenOrders
-                .Count(ko => ko.Status is KitchenStatus.Queued or KitchenStatus.Accepted or KitchenStatus.Preparing);
+                .Count(ko => ko.Status is KitchenStatus.Accepted or KitchenStatus.Preparing);
 
             allowedKitchen.CurrentLoad = activeCount / (float)allowedKitchen.Capacity;
         }

@@ -62,7 +62,7 @@ namespace KitchenService.Migrations
                     b.Property<int>("GlobalOrderStatus")
                         .HasColumnType("integer");
 
-                    b.Property<int>("KitchenId")
+                    b.Property<int?>("KitchenId")
                         .HasColumnType("integer");
 
                     b.Property<int>("OrderId")
@@ -123,9 +123,7 @@ namespace KitchenService.Migrations
                 {
                     b.HasOne("KitchenService.Models.Entities.Kitchen", null)
                         .WithMany("KitchenOrders")
-                        .HasForeignKey("KitchenId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("KitchenId");
                 });
 
             modelBuilder.Entity("KitchenService.Models.Entities.KitchenStaff", b =>
