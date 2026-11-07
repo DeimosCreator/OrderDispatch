@@ -3,7 +3,6 @@ using KitchenService.Models.Enities.Enums;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Enums;
-using OrderDispatch.Contracts.Messaging.Events;
 using OrderDispatch.Contracts.Messaging.Events.Orders;
 
 namespace KitchenService.Features.Kitchen.Consumers;
