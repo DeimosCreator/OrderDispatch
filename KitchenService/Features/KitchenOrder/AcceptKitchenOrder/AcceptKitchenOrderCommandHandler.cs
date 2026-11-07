@@ -12,9 +12,20 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db) : IRequestHandler
         var kitchenOrder = await db.KitchenOrders.Where(kitchenOrder => kitchenOrder.Id == request.Id)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        if (kitchenOrder == null) return AcceptKitchenOrderResult.NotFound;
+        if (kitchenOrder == null) return AcceptKitchenOrderResult.KitchenOrderNotFound;
+
+        var kitchen = await db.Kitchens.Where(kitchen => kitchen.Id == kitchenOrder.KitchenId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (kitchen == null) return AcceptKitchenOrderResult.KitchenNotFound;
+
+        var kitchenCurrentLoad = kitchen.CurrentLoad + (float)1 / kitchen.Capacity;
+
+        if (kitchenCurrentLoad > 1) return AcceptKitchenOrderResult.KitchenBusy;
         
         if (!kitchenOrder.TransitionTo(KitchenStatus.Accepted)) return AcceptKitchenOrderResult.CannotAccept;
+
+        kitchen.CurrentLoad = kitchenCurrentLoad;
 
         await db.SaveChangesAsync(cancellationToken);
         return AcceptKitchenOrderResult.Accepted;

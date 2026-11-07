@@ -12,14 +12,15 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
     public async Task Consume(ConsumeContext<OrderCreatedEvent> context)
     {
         var msg = context.Message;
-        
+
         var allowedKitchen = await db.Kitchens
             .Include(kitchen => kitchen.KitchenOrders)
-            .Where(kitchen => kitchen.IsActive && 
-                              (kitchen.KitchenOrders.Count(ko => 
-                                   ko.Status == KitchenStatus.Accepted || 
-                                   ko.Status == KitchenStatus.Preparing) + 1) 
-                              / (float)kitchen.Capacity <= 1f)
+            .Where(kitchen => kitchen.IsActive &&
+                              kitchen.KitchenOrders.Count(ko =>
+                                  ko.Status == KitchenStatus.Queued ||
+                                  ko.Status == KitchenStatus.Accepted ||
+                                  ko.Status == KitchenStatus.Preparing)
+                              / (float)kitchen.Capacity < 1f)
             .FirstOrDefaultAsync();
 
         var kitchenOrder = new Models.Entities.KitchenOrder
@@ -27,15 +28,15 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
             OrderId = msg.OrderId,
             UserId = msg.UserId,
             TotalPrice = msg.TotalPrice,
-            GlobalOrderStatus = allowedKitchen != null ? msg.Status : OrderStatus.Rejected, 
+            GlobalOrderStatus = allowedKitchen != null ? msg.Status : OrderStatus.Rejected,
             KitchenId = allowedKitchen?.Id ?? -1
         };
 
         if (allowedKitchen != null)
         {
             var activeCount = allowedKitchen.KitchenOrders
-                .Count(ko => ko.Status is KitchenStatus.Accepted or KitchenStatus.Preparing) + 1;
-                
+                .Count(ko => ko.Status is KitchenStatus.Queued or KitchenStatus.Accepted or KitchenStatus.Preparing);
+
             allowedKitchen.CurrentLoad = activeCount / (float)allowedKitchen.Capacity;
         }
 

@@ -2,7 +2,9 @@
 
 public enum AcceptKitchenOrderResult
 {
-    NotFound,
+    KitchenOrderNotFound,
+    KitchenNotFound,
+    KitchenBusy,
     CannotAccept,
     Accepted
-};
+}
