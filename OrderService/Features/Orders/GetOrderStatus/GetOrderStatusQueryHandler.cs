@@ -9,7 +9,9 @@ public class GetOrderStatusQueryHandler(AppDbContext db) : IRequestHandler<GetOr
 {
     public async Task<OrderStatus?> Handle(GetOrderStatusQuery request, CancellationToken cancellationToken)
     {
-        var order = await db.Orders.FirstOrDefaultAsync(
+        var order = await db.Orders
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
             order => order.UserId == request.UserId && order.Id == request.Id, cancellationToken);
 
         var status = order?.Status;

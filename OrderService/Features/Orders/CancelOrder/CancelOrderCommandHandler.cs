@@ -1,12 +1,15 @@
-﻿using MediatR;
+﻿using MassTransit;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Enums;
+using OrderDispatch.Contracts.Messaging.Events.Orders;
 using OrderService.Data;
 using OrderService.Models.Entities.Enums;
 
 namespace OrderService.Features.Orders.CancelOrder;
 
-public class CancelOrderCommandHandler(AppDbContext db) : IRequestHandler<CancelOrderCommand, CancelOrderResult>
+public class CancelOrderCommandHandler(AppDbContext db, IPublishEndpoint publishEndpoint)
+    : IRequestHandler<CancelOrderCommand, CancelOrderResult>
 {
     public async Task<CancelOrderResult> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
     {
@@ -18,6 +21,11 @@ public class CancelOrderCommandHandler(AppDbContext db) : IRequestHandler<Cancel
         if (!order.TransitionTo(OrderStatus.Cancelled)) return CancelOrderResult.CannotCancel;
 
         await db.SaveChangesAsync(cancellationToken);
+
+        await publishEndpoint.Publish(
+            new OrderStatusChangedEvent(order.Id, order.Status, order.UpdatedAt),
+            cancellationToken);
+
         return CancelOrderResult.Cancelled;
     }
 }

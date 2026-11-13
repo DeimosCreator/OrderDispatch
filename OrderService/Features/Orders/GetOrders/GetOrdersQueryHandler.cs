@@ -10,8 +10,12 @@ public class GetOrdersQueryHandler(AppDbContext db) : IRequestHandler<GetOrdersQ
 {
     public async Task<List<OrderDto>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
     {
-        var orders = await db.Orders.Where(order => order.UserId == request.UserId)
+        var orders = await db.Orders
+            .AsNoTracking()
+            .Where(order => order.UserId == request.UserId)
             .ToListAsync(cancellationToken);
+        
+        
         var orderDtos = orders
             .Select(order => new OrderDto(
                 order.Id,
