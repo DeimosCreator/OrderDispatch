@@ -10,6 +10,7 @@ public class GetKitchenStaffsQueryHandler(AppDbContext db) : IRequestHandler<Get
     public async Task<List<KitchenStaffDto>> Handle(GetKitchenStaffsQuery request, CancellationToken cancellationToken)
     {
         var kitchenStaffs = await db.KitchenStaffs.Where(kitchenStaff => kitchenStaff.KitchenId == request.KitchenId)
+            .AsNoTracking()
             .ToListAsync(cancellationToken: cancellationToken);
 
         var kitchenStaffDtos = kitchenStaffs.Select(kitchenStaff =>

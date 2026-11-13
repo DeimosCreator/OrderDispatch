@@ -19,13 +19,18 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db) : IRequestHandler
 
         if (kitchen == null) return AcceptKitchenOrderResult.KitchenNotFound;
 
-        var kitchenCurrentLoad = kitchen.CurrentLoad + (float)1 / kitchen.Capacity;
+        if (kitchen.Capacity <= 0) return AcceptKitchenOrderResult.KitchenBusy;
 
-        if (kitchenCurrentLoad > 1) return AcceptKitchenOrderResult.KitchenBusy;
-        
+        var activeCount = await db.KitchenOrders.CountAsync(
+            ko => ko.KitchenId == kitchen.Id &&
+                  (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing),
+            cancellationToken);
+
+        if (activeCount >= kitchen.Capacity) return AcceptKitchenOrderResult.KitchenBusy;
+
         if (!kitchenOrder.TransitionTo(KitchenStatus.Accepted)) return AcceptKitchenOrderResult.CannotAccept;
 
-        kitchen.CurrentLoad = kitchenCurrentLoad;
+        kitchen.CurrentLoad = Math.Clamp((float)(activeCount + 1) / kitchen.Capacity, 0f, 1f);
         kitchenOrder.StartedAt = DateTime.UtcNow;
         kitchenOrder.UpdatedAt = DateTime.UtcNow;
 

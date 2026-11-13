@@ -9,6 +9,7 @@ public class GetKitchenLoadQueryHandler(AppDbContext db) : IRequestHandler<GetKi
     public async Task<float?> Handle(GetKitchenLoadQuery request, CancellationToken cancellationToken)
     {
         var kitchen = await db.Kitchens
+            .AsNoTracking()
             .FirstOrDefaultAsync(kitchen => kitchen.Id == request.Id, cancellationToken: cancellationToken);
 
         var currentLoad = kitchen?.CurrentLoad;
