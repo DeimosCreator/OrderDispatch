@@ -24,13 +24,13 @@ public class CancelKitchenOrderCommandHandler(AppDbContext db)
             var kitchen = await db.Kitchens
                 .FirstOrDefaultAsync(k => k.Id == kitchenOrder.KitchenId.Value, cancellationToken);
 
-            if (kitchen != null)
+            if (kitchen is { Capacity: > 0 })
             {
                 var activeCount = await db.KitchenOrders.CountAsync(
                     ko => ko.KitchenId == kitchen.Id &&
                           ko.Id != kitchenOrder.Id &&
                           (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing),
-                    cancellationToken) - 1;
+                    cancellationToken);
 
                 kitchen.CurrentLoad = Math.Clamp((float)activeCount / kitchen.Capacity, 0f, 1f);
             }
