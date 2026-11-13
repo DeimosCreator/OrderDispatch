@@ -41,8 +41,12 @@ public class RegisterUserCommandHandler(
             return null;
         }
 
-        var createdUser = (await keycloakClient.GetUsersAsync(keycloakOptions.Value.Realm, username: request.UserName,
-            cancellationToken: cancellationToken)).First();
-        return createdUser;
+        var users = await keycloakClient.GetUsersAsync(
+            keycloakOptions.Value.Realm,
+            username: request.UserName,
+            cancellationToken: cancellationToken);
+        
+        return users.FirstOrDefault(u =>
+            string.Equals(u.UserName, request.UserName, StringComparison.OrdinalIgnoreCase));
     }
 }

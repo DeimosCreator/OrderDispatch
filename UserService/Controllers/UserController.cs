@@ -43,7 +43,7 @@ public class UserController(ISender sender) : BaseController
         var token = await sender.Send(userCommand);
         if (token == null)
         {
-            return BadRequest();
+            return Unauthorized("Неверный логин или пароль");
         }
 
         return Ok(token);
