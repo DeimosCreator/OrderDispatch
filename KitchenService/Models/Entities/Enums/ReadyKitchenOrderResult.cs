@@ -2,7 +2,8 @@
 
 public enum ReadyKitchenOrderResult
 {
-    NotFound,
+    KitchenOrderNotFound,
+    KitchenNotFound,
     CannotReady,
     Ready
 }

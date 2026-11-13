@@ -1,11 +1,13 @@
-﻿using OrderDispatch.Contracts.Enums;
+﻿using OrderDispatch.Contracts.Dtos.Orders;
+using OrderDispatch.Contracts.Enums;
 
 namespace OrderDispatch.Contracts.Messaging.Events.Orders;
 
 public record OrderCreatedEvent(
-    int OrderId, 
-    string UserId, 
-    OrderStatus Status, 
-    decimal TotalPrice, 
-    DateTime CreatedAt
+    int OrderId,
+    string UserId,
+    OrderStatus Status,
+    decimal TotalPrice,
+    DateTime CreatedAt,
+    List<OrderItemDto> Items
 );

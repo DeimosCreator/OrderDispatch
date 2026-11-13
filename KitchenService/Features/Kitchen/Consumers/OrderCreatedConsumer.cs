@@ -1,8 +1,8 @@
 ﻿using KitchenService.Data;
+using KitchenService.Models.Entities;
 using KitchenService.Models.Entities.Enums;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using OrderDispatch.Contracts.Enums;
 using OrderDispatch.Contracts.Messaging.Events.Orders;
 
 namespace KitchenService.Features.Kitchen.Consumers;
@@ -13,12 +13,14 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
     {
         var msg = context.Message;
         var ct = context.CancellationToken;
-
+        
         if (await db.KitchenOrders.AnyAsync(ko => ko.OrderId == msg.OrderId, ct))
             return;
 
+        var itemsCount = msg.Items.Sum(i => (int)i.Quantity);
+
         var allowedKitchen = await db.Kitchens
-            .Where(k => k.IsActive && k.Capacity > 0 && k.CurrentLoad < 1f)
+            .Where(k => k.IsActive && k.Capacity > 0 && (k.CurrentLoad + ((float)itemsCount / k.Capacity)) <= 1f)
             .OrderBy(k => k.CurrentLoad)
             .FirstOrDefaultAsync(ct);
 
@@ -28,7 +30,14 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
             UserId = msg.UserId,
             TotalPrice = msg.TotalPrice,
             GlobalOrderStatus = msg.Status,
-            KitchenId = allowedKitchen?.Id
+            KitchenId = allowedKitchen?.Id,
+            KitchenOrderItems = msg.Items.Select(item => new KitchenOrderItem
+            {
+                ProductId = item.ProductId,
+                ProductName = item.ProductName,
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice
+            }).ToList()
         };
 
         if (allowedKitchen != null)
@@ -36,12 +45,16 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
             kitchenOrder.TransitionTo(KitchenStatus.Accepted);
             kitchenOrder.StartedAt = DateTime.UtcNow;
 
-            var activeCount = await db.KitchenOrders.CountAsync(
-                ko => ko.KitchenId == allowedKitchen.Id &&
-                      (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing),
-                ct);
+            var activeItemsCount = await db.KitchenOrders
+                .Where(ko => ko.KitchenId == allowedKitchen.Id &&
+                             (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing))
+                .SelectMany(ko => ko.KitchenOrderItems)
+                .SumAsync(i => (int?)i.Quantity, ct) ?? 0;
 
-            allowedKitchen.CurrentLoad = Math.Clamp((float)(activeCount + 1) / allowedKitchen.Capacity, 0f, 1f);
+            allowedKitchen.CurrentLoad = Math.Clamp(
+                (float)(activeItemsCount + itemsCount) / allowedKitchen.Capacity,
+                0f,
+                1f);
         }
 
         db.KitchenOrders.Add(kitchenOrder);

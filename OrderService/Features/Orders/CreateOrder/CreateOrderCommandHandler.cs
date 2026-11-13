@@ -14,14 +14,17 @@ public class CreateOrderCommandHandler(AppDbContext db, IPublishEndpoint publish
         var order = new Order
         {
             UserId = request.UserId,
-            TotalPrice = request.TotalPrice
+            TotalPrice = request.Items.Select(item => item.Quantity).Sum()
         };
 
         db.Orders.Add(order);
         await db.SaveChangesAsync(cancellationToken);
 
         await publishEndpoint.Publish(new OrderCreatedEvent(
-            order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt), cancellationToken);
+                order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt, request.Items
+                    .Select(item => new OrderItemDto(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice))
+                    .ToList()),
+            cancellationToken);
 
         var orderDto = new OrderDto(order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt,
             order.UpdatedAt);

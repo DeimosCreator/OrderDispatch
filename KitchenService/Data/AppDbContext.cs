@@ -8,6 +8,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Kitchen> Kitchens => Set<Kitchen>();
     public DbSet<KitchenOrder> KitchenOrders => Set<KitchenOrder>();
     public DbSet<KitchenStaff> KitchenStaffs => Set<KitchenStaff>();
+    public DbSet<KitchenOrderItem> KitchenOrderItems => Set<KitchenOrderItem>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

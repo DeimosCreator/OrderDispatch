@@ -17,6 +17,8 @@ public class KitchenOrder
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime StartedAt { get; set; }
     public DateTime ReadyAt { get; set; }
+
+    public List<KitchenOrderItem> KitchenOrderItems { get; set; } = [];
     
     public bool TransitionTo(KitchenStatus nextStatus)
     {

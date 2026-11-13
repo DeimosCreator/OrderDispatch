@@ -62,7 +62,8 @@ public class KitchenOrderController(ISender sender) : BaseController
         var status = await sender.Send(new ReadyKitchenOrderCommand(id));
         return status switch
         {
-            ReadyKitchenOrderResult.NotFound => NotFound("Заказ кухни не найден"),
+            ReadyKitchenOrderResult.KitchenOrderNotFound => NotFound("Заказ кухни не найден"),
+            ReadyKitchenOrderResult.KitchenNotFound => NotFound("Кухня не найдена"),
             ReadyKitchenOrderResult.CannotReady => Conflict("Заказ кухни нельзя назначить готовым"),
             ReadyKitchenOrderResult.Ready => Ok(status),
             _ => StatusCode(500)

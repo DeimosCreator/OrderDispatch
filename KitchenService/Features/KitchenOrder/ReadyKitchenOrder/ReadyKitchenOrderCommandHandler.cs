@@ -5,17 +5,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KitchenService.Features.KitchenOrder.ReadyKitchenOrder;
 
-public class ReadyKitchenOrderCommandHandler(AppDbContext db) 
+public class ReadyKitchenOrderCommandHandler(AppDbContext db)
     : IRequestHandler<ReadyKitchenOrderCommand, ReadyKitchenOrderResult>
 {
-    public async Task<ReadyKitchenOrderResult> Handle(ReadyKitchenOrderCommand request, CancellationToken cancellationToken)
+    public async Task<ReadyKitchenOrderResult> Handle(
+        ReadyKitchenOrderCommand request,
+        CancellationToken cancellationToken)
     {
         var kitchenOrder = await db.KitchenOrders
             .FirstOrDefaultAsync(ko => ko.Id == request.Id, cancellationToken);
 
-        if (kitchenOrder == null) return ReadyKitchenOrderResult.NotFound;
+        if (kitchenOrder == null)
+            return ReadyKitchenOrderResult.KitchenOrderNotFound;
 
-        if (!kitchenOrder.TransitionTo(KitchenStatus.Ready)) return ReadyKitchenOrderResult.CannotReady;
+        if (!kitchenOrder.TransitionTo(KitchenStatus.Ready))
+            return ReadyKitchenOrderResult.CannotReady;
 
         kitchenOrder.ReadyAt = DateTime.UtcNow;
         kitchenOrder.UpdatedAt = DateTime.UtcNow;
@@ -25,28 +29,41 @@ public class ReadyKitchenOrderCommandHandler(AppDbContext db)
             var kitchen = await db.Kitchens
                 .FirstOrDefaultAsync(k => k.Id == kitchenOrder.KitchenId.Value, cancellationToken);
 
-            if (kitchen is { Capacity: > 0 })
-            {
-                var activeCount = await db.KitchenOrders.CountAsync(
-                    ko => ko.KitchenId == kitchen.Id &&
-                          ko.Id != kitchenOrder.Id &&
-                          (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing),
-                    cancellationToken);
+            if (kitchen == null)
+                return ReadyKitchenOrderResult.KitchenNotFound;
 
-                var queuedOrder = await db.KitchenOrders
+            if (kitchen.Capacity > 0)
+            {
+                var activeItemsCount = await db.KitchenOrders
+                    .Where(ko => ko.KitchenId == kitchen.Id &&
+                                 ko.Id != kitchenOrder.Id &&
+                                 (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing))
+                    .SelectMany(ko => ko.KitchenOrderItems)
+                    .SumAsync(i => (int?)i.Quantity, cancellationToken) ?? 0;
+
+                var queuedOrders = await db.KitchenOrders
+                    .Include(o => o.KitchenOrderItems)
                     .Where(o => o.Status == KitchenStatus.Queued && o.KitchenId == null)
                     .OrderBy(o => o.CreatedAt)
-                    .FirstOrDefaultAsync(cancellationToken);
+                    .ToListAsync(cancellationToken);
 
-                if (queuedOrder != null && activeCount < kitchen.Capacity)
+                var nextOrder = queuedOrders.FirstOrDefault(o =>
                 {
-                    queuedOrder.KitchenId = kitchen.Id;
-                    queuedOrder.TransitionTo(KitchenStatus.Accepted);
-                    queuedOrder.StartedAt = DateTime.UtcNow;
-                    activeCount++;
+                    var orderItemsCount = o.KitchenOrderItems.Sum(i => (int)i.Quantity);
+                    return activeItemsCount + orderItemsCount <= kitchen.Capacity;
+                });
+
+                if (nextOrder != null)
+                {
+                    nextOrder.KitchenId = kitchen.Id;
+                    nextOrder.TransitionTo(KitchenStatus.Accepted);
+                    nextOrder.StartedAt = DateTime.UtcNow;
+                    nextOrder.UpdatedAt = DateTime.UtcNow;
+
+                    activeItemsCount += nextOrder.KitchenOrderItems.Sum(i => (int)i.Quantity);
                 }
 
-                kitchen.CurrentLoad = Math.Clamp((float)activeCount / kitchen.Capacity, 0f, 1f);
+                kitchen.CurrentLoad = Math.Clamp((float)activeItemsCount / kitchen.Capacity, 0f, 1f);
             }
         }
 

@@ -6,5 +6,5 @@ namespace OrderService.Features.Orders.CreateOrder;
 
 public record CreateOrderCommand(
     string UserId,
-    [Range(0.01, int.MaxValue)] decimal TotalPrice = 100
+    List<CreateOrderItemDto> Items
 ) : IRequest<OrderDto>;
