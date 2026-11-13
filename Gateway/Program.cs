@@ -5,17 +5,20 @@ builder.Services
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddOpenApiForYarp();
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
-app.MapReverseProxy();
-app.MapOpenApiForYarp();
-
-app.UseSwaggerUI(options =>
+if (app.Environment.IsDevelopment())
 {
-    options.SwaggerEndpoint(
-        "/openapi/all.json",
-        "OrderDispatch API"
-    );
-});
+    app.MapOpenApiForYarp();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/all.json", "OrderDispatch API");
+    });
+}
+
+app.MapHealthChecks("/health");
+app.MapReverseProxy();
 
 app.Run();

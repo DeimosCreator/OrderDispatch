@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderDispatch.Contracts", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "UserService\UserService.csproj", "{3E4A5C77-B241-4AD8-8A98-3A38C48F32AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderDispatch.Tests", "OrderDispatch.Tests\OrderDispatch.Tests.csproj", "{58C68B74-9249-4694-8B0E-56FF45A26338}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +43,9 @@ Global
 		{3E4A5C77-B241-4AD8-8A98-3A38C48F32AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E4A5C77-B241-4AD8-8A98-3A38C48F32AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E4A5C77-B241-4AD8-8A98-3A38C48F32AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58C68B74-9249-4694-8B0E-56FF45A26338}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58C68B74-9249-4694-8B0E-56FF45A26338}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58C68B74-9249-4694-8B0E-56FF45A26338}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58C68B74-9249-4694-8B0E-56FF45A26338}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
