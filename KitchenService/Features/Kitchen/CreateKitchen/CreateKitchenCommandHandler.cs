@@ -13,7 +13,7 @@ public class CreateKitchenCommandHandler(AppDbContext db) : IRequestHandler<Crea
         {
             Name = request.Name,
             Capacity = request.Capacity,
-            CurrentLoad = request.CurrentLoad,
+            CurrentLoad = 0f,
             IsActive = request.IsActive
         };
 

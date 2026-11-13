@@ -12,10 +12,10 @@ using OrderDispatch.Contracts.Security;
 namespace KitchenService.Controllers;
 
 [ApiController]
-[Route("api/kitchen_staff")]
+[Route("api/kitchen-staff")]
 public class KitchenStaffController(ISender sender) : BaseController
 {
-    [Authorize]
+    [AuthorizeMinRank(AppRoles.BranchManager)]
     [HttpPost("assign")]
     public async Task<IActionResult> AssignKitchenStaffOrder(
         [FromBody] AssignKitchenStaffCommand assignKitchenStaffCommand)
@@ -47,7 +47,7 @@ public class KitchenStaffController(ISender sender) : BaseController
     }
 
     [AuthorizeMinRank(AppRoles.BranchManager)]
-    [HttpGet("{id}")]
+    [HttpGet("staff/{id}")]
     public async Task<IActionResult> GetKitchenStaff(string id)
     {
         var result = await sender.Send(new GetKitchenStaffQuery(id));
@@ -60,7 +60,7 @@ public class KitchenStaffController(ISender sender) : BaseController
     }
     
     [AuthorizeMinRank(AppRoles.BranchManager)]
-    [HttpGet("{kitchenId:int}")]
+    [HttpGet("by-kitchen/{kitchenId:int}")]
     public async Task<IActionResult> GetKitchenStaffs(int kitchenId)
     {
         var result = await sender.Send(new GetKitchenStaffsQuery(kitchenId));
