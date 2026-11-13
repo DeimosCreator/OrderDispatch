@@ -12,35 +12,39 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
     public async Task Consume(ConsumeContext<OrderCreatedEvent> context)
     {
         var msg = context.Message;
+        var ct = context.CancellationToken;
+
+        if (await db.KitchenOrders.AnyAsync(ko => ko.OrderId == msg.OrderId, ct))
+            return;
 
         var allowedKitchen = await db.Kitchens
-            .Include(kitchen => kitchen.KitchenOrders)
-            .Where(kitchen => kitchen.IsActive &&
-                              kitchen.KitchenOrders.Count(ko =>
-                                  ko.Status == KitchenStatus.Queued ||
-                                  ko.Status == KitchenStatus.Accepted ||
-                                  ko.Status == KitchenStatus.Preparing)
-                              / (float)kitchen.Capacity < 1f)
-            .FirstOrDefaultAsync();
+            .Where(k => k.IsActive && k.Capacity > 0 && k.CurrentLoad < 1f)
+            .OrderBy(k => k.CurrentLoad)
+            .FirstOrDefaultAsync(ct);
 
         var kitchenOrder = new Models.Entities.KitchenOrder
         {
             OrderId = msg.OrderId,
             UserId = msg.UserId,
             TotalPrice = msg.TotalPrice,
-            GlobalOrderStatus = allowedKitchen != null ? msg.Status : OrderStatus.Rejected,
-            KitchenId = allowedKitchen?.Id ?? null
+            GlobalOrderStatus = msg.Status,
+            KitchenId = allowedKitchen?.Id
         };
 
         if (allowedKitchen != null)
         {
-            var activeCount = allowedKitchen.KitchenOrders
-                .Count(ko => ko.Status is KitchenStatus.Accepted or KitchenStatus.Preparing);
+            kitchenOrder.TransitionTo(KitchenStatus.Accepted);
+            kitchenOrder.StartedAt = DateTime.UtcNow;
 
-            allowedKitchen.CurrentLoad = activeCount / (float)allowedKitchen.Capacity;
+            var activeCount = await db.KitchenOrders.CountAsync(
+                ko => ko.KitchenId == allowedKitchen.Id &&
+                      (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing),
+                ct);
+
+            allowedKitchen.CurrentLoad = Math.Clamp((float)(activeCount + 1) / allowedKitchen.Capacity, 0f, 1f);
         }
 
         db.KitchenOrders.Add(kitchenOrder);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(ct);
     }
 }

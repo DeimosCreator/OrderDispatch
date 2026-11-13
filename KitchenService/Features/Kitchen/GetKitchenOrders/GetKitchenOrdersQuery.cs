@@ -1,7 +1,6 @@
-﻿using MediatR;
-using OrderDispatch.Contracts.Dtos;
-using OrderDispatch.Contracts.Dtos.Orders;
+﻿using KitchenService.Models.Dtos;
+using MediatR;
 
 namespace KitchenService.Features.Kitchen.GetKitchenOrders;
 
-public record GetKitchenOrdersQuery(int Id) : IRequest<List<OrderDto>>;
+public record GetKitchenOrdersQuery(int Id) : IRequest<List<KitchenOrderDto>>;

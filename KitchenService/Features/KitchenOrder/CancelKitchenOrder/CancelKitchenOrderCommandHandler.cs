@@ -15,7 +15,26 @@ public class CancelKitchenOrderCommandHandler(AppDbContext db)
 
         if (kitchenOrder == null) return CancelKitchenOrderResult.NotFound;
         
+        var wasActive = kitchenOrder.Status is KitchenStatus.Accepted or KitchenStatus.Preparing;
+        
         if (!kitchenOrder.TransitionTo(KitchenStatus.Cancelled)) return CancelKitchenOrderResult.CannotCancel;
+
+        if (wasActive && kitchenOrder.KitchenId.HasValue)
+        {
+            var kitchen = await db.Kitchens
+                .FirstOrDefaultAsync(k => k.Id == kitchenOrder.KitchenId.Value, cancellationToken);
+
+            if (kitchen is { Capacity: > 0 })
+            {
+                var activeCount = await db.KitchenOrders.CountAsync(
+                    ko => ko.KitchenId == kitchen.Id &&
+                          ko.Id != kitchenOrder.Id &&
+                          (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing),
+                    cancellationToken);
+
+                kitchen.CurrentLoad = Math.Clamp((float)activeCount / kitchen.Capacity, 0f, 1f);
+            }
+        }
         
         kitchenOrder.UpdatedAt = DateTime.UtcNow;
 

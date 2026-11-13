@@ -6,11 +6,14 @@ using KitchenService.Features.KitchenOrder.ReadyKitchenOrder;
 using KitchenService.Models.Entities.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using OrderDispatch.Contracts.Constants;
+using OrderDispatch.Contracts.Security;
 
 namespace KitchenService.Controllers;
 
 [ApiController]
 [Route("api/kitchen-orders")]
+[AuthorizeMinRank(AppRoles.Chef)]
 public class KitchenOrderController(ISender sender) : BaseController
 {
     [HttpGet("{id:int}")]

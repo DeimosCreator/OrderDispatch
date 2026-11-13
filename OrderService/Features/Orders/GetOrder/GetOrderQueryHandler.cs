@@ -10,7 +10,9 @@ public class GetOrderQueryHandler(AppDbContext db) : IRequestHandler<GetOrderQue
 {
     public async Task<OrderDto?> Handle(GetOrderQuery request, CancellationToken cancellationToken)
     {
-        var order = await db.Orders.FirstOrDefaultAsync(
+        var order = await db.Orders
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
             order => order.UserId == request.UserId && order.Id == request.Id, cancellationToken);
 
         if (order == null) return null;

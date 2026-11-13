@@ -10,6 +10,7 @@ public static class OrderStateMachine
             [OrderStatus.Created] =
             [
                 OrderStatus.PendingKitchen,
+                OrderStatus.Paid,
                 OrderStatus.Cancelled
             ],
 

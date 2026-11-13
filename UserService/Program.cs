@@ -15,8 +15,6 @@ builder.Services.AddControllers();
 
 builder.Services.AddHttpClient();
 
-builder.Services.AddOpenApi();
-
 builder.Services.Configure<KeycloakSettings>(options =>
 {
     options.Url = Environment.GetEnvironmentVariable("KEYCLOAK_URL")!;
@@ -64,19 +62,26 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.MetadataAddress = Environment.GetEnvironmentVariable("KEYCLOAK_METADATA_ADDRESS")!;
-        
-        options.RequireHttpsMetadata = false;
-        
+        var metadataAddress = Environment.GetEnvironmentVariable("KEYCLOAK_METADATA_ADDRESS")!;
+        var authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY")!;
+        var internalIssuer = metadataAddress.Replace("/.well-known/openid-configuration", "");
+
+        options.MetadataAddress = metadataAddress;
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
             ValidateIssuer = true,
-            ValidIssuer = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY"),
-            ValidateLifetime = true
+            ValidIssuers = [authority, internalIssuer],
+            ValidateLifetime = true,
+            RoleClaimType = "role"
         };
     });
 
@@ -123,12 +128,22 @@ builder.Services.AddOpenApi(options =>
 var app = builder.Build();
 
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler();
+}
+
 app.UseCors("AllowSwagger");
-app.MapOpenApi().RequireCors("AllowSwagger"); 
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi().RequireCors("AllowSwagger");
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();

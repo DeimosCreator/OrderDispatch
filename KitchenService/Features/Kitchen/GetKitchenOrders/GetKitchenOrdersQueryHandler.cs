@@ -1,28 +1,28 @@
 ﻿using KitchenService.Data;
+using KitchenService.Models.Dtos;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using OrderDispatch.Contracts.Dtos;
-using OrderDispatch.Contracts.Dtos.Orders;
 
 namespace KitchenService.Features.Kitchen.GetKitchenOrders;
 
 public class GetKitchenOrdersQueryHandler(AppDbContext db)
-    : IRequestHandler<GetKitchenOrdersQuery, List<OrderDto>>
+    : IRequestHandler<GetKitchenOrdersQuery, List<KitchenOrderDto>>
 {
-    public async Task<List<OrderDto>> Handle(GetKitchenOrdersQuery request, CancellationToken cancellationToken)
+    public async Task<List<KitchenOrderDto>> Handle(GetKitchenOrdersQuery request, CancellationToken cancellationToken)
     {
-        var ordersDtos = await db.KitchenOrders
+        return await db.KitchenOrders
+            .AsNoTracking()
             .Where(ko => ko.KitchenId == request.Id)
-            .Select(ko => new OrderDto(
+            .Select(ko => new KitchenOrderDto(
+                ko.Id,
                 ko.OrderId,
-                ko.UserId,
-                ko.GlobalOrderStatus,
-                ko.TotalPrice,
+                ko.KitchenId,
+                ko.Status,
                 ko.CreatedAt,
-                ko.UpdatedAt
+                ko.UpdatedAt,
+                ko.StartedAt,
+                ko.ReadyAt
             ))
             .ToListAsync(cancellationToken);
-
-        return ordersDtos;
     }
 }

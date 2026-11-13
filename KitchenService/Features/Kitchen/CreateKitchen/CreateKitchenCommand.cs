@@ -5,8 +5,7 @@ using MediatR;
 namespace KitchenService.Features.Kitchen.CreateKitchen;
 
 public record CreateKitchenCommand(
-    string Name,
-    [Range(0, int.MaxValue)] int Capacity = 5,
-    [Range(0, 1)] float CurrentLoad = 0f,
+    [Required, MinLength(1)] string Name,
+    [Range(1, int.MaxValue)] int Capacity = 5,
     bool IsActive = true
-) : IRequest<KitchenDto>;     
+) : IRequest<KitchenDto>;
