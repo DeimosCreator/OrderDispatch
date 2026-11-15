@@ -32,12 +32,14 @@ public class OrderStatusChangedConsumer(AppDbContext db) : IConsumer<OrderStatus
                 var kitchen = await db.Kitchens.FirstOrDefaultAsync(k => k.Id == kitchenOrder.KitchenId.Value, ct);
                 if (kitchen is { Capacity: > 0 })
                 {
-                    var activeCount = await db.KitchenOrders.CountAsync(
-                        ko => ko.KitchenId == kitchen.Id &&
-                              ko.Id != kitchenOrder.Id &&
-                              (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing),
-                        ct);
-                    kitchen.CurrentLoad = Math.Clamp((float)activeCount / kitchen.Capacity, 0f, 1f);
+                    var activeItemsCount = await db.KitchenOrders
+                        .Where(ko => ko.KitchenId == kitchen.Id &&
+                                     ko.Id != kitchenOrder.Id &&
+                                     (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing))
+                        .SelectMany(ko => ko.KitchenOrderItems)
+                        .SumAsync(i => (int?)i.Quantity, ct) ?? 0;
+                    
+                    kitchen.CurrentLoad = Math.Clamp((float)activeItemsCount / kitchen.Capacity, 0f, 1f);
                 }
             }
         }

@@ -20,17 +20,24 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db) : IRequestHandler
         if (kitchen == null) return AcceptKitchenOrderResult.KitchenNotFound;
 
         if (kitchen.Capacity <= 0) return AcceptKitchenOrderResult.KitchenBusy;
+        
+        var orderItemsCount = await db.KitchenOrderItems
+            .Where(i => i.KitchenOrderId == kitchenOrder.Id)
+            .SumAsync(i => (int?)i.Quantity, cancellationToken) ?? 0;
 
-        var activeCount = await db.KitchenOrders.CountAsync(
-            ko => ko.KitchenId == kitchen.Id &&
-                  (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing),
-            cancellationToken);
+        var activeItemsCount = await db.KitchenOrders
+            .Where(ko => ko.KitchenId == kitchen.Id &&
+                         (ko.Status == KitchenStatus.Accepted || ko.Status == KitchenStatus.Preparing))
+            .SelectMany(ko => ko.KitchenOrderItems)
+            .SumAsync(i => (int?)i.Quantity, cancellationToken) ?? 0;
 
-        if (activeCount >= kitchen.Capacity) return AcceptKitchenOrderResult.KitchenBusy;
+        if (activeItemsCount + orderItemsCount > kitchen.Capacity)
+            return AcceptKitchenOrderResult.KitchenBusy;
 
-        if (!kitchenOrder.TransitionTo(KitchenStatus.Accepted)) return AcceptKitchenOrderResult.CannotAccept;
+        if (!kitchenOrder.TransitionTo(KitchenStatus.Accepted))
+            return AcceptKitchenOrderResult.CannotAccept;
 
-        kitchen.CurrentLoad = Math.Clamp((float)(activeCount + 1) / kitchen.Capacity, 0f, 1f);
+        kitchen.CurrentLoad = Math.Clamp((float)(activeItemsCount + orderItemsCount) / kitchen.Capacity, 0f, 1f);
         kitchenOrder.StartedAt = DateTime.UtcNow;
         kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
