@@ -36,7 +36,7 @@ public class KitchenOrderController(ISender sender) : BaseController
         {
             AcceptKitchenOrderResult.KitchenNotFound => NotFound("Кухня не найдена"),
             AcceptKitchenOrderResult.KitchenOrderNotFound => NotFound("Заказ кухни не найден"),
-            AcceptKitchenOrderResult.KitchenBusy => Conflict("Кухня в данный момент занята"),
+            //AcceptKitchenOrderResult.KitchenBusy => Conflict("Кухня в данный момент занята"),
             AcceptKitchenOrderResult.CannotAccept => Conflict("Заказ кухни нельзя взять"),
             AcceptKitchenOrderResult.Accepted => Ok(status),
             _ => StatusCode(500)

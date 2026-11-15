@@ -4,7 +4,6 @@ public enum AcceptKitchenOrderResult
 {
     KitchenOrderNotFound,
     KitchenNotFound,
-    KitchenBusy,
     CannotAccept,
     Accepted
 }

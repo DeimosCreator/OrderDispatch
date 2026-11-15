@@ -20,7 +20,7 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
         var itemsCount = msg.Items.Sum(i => (int)i.Quantity);
 
         var allowedKitchen = await db.Kitchens
-            .Where(k => k.IsActive && k.Capacity > 0 && (k.CurrentLoad + ((float)itemsCount / k.Capacity)) <= 1f)
+            .Where(k => k.IsActive && k.Capacity > 0 && k.CurrentLoad + (float)itemsCount / k.Capacity <= 1f)
             .OrderBy(k => k.CurrentLoad)
             .FirstOrDefaultAsync(ct);
 
@@ -29,7 +29,6 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
             OrderId = msg.OrderId,
             UserId = msg.UserId,
             TotalPrice = msg.TotalPrice,
-            GlobalOrderStatus = msg.Status,
             KitchenId = allowedKitchen?.Id,
             KitchenOrderItems = msg.Items.Select(item => new KitchenOrderItem
             {
@@ -42,8 +41,8 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
 
         if (allowedKitchen != null)
         {
-            kitchenOrder.TransitionTo(KitchenStatus.Accepted);
             kitchenOrder.StartedAt = DateTime.UtcNow;
+            kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
             var activeItemsCount = await db.KitchenOrders
                 .Where(ko => ko.KitchenId == allowedKitchen.Id &&
@@ -56,6 +55,7 @@ public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent
                 0f,
                 1f);
         }
+        //TODO: Переделать систему под управление взятия заказа шефом
 
         db.KitchenOrders.Add(kitchenOrder);
         await db.SaveChangesAsync(ct);

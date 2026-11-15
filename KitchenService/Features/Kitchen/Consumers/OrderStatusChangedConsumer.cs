@@ -22,7 +22,7 @@ public class OrderStatusChangedConsumer(AppDbContext db) : IConsumer<OrderStatus
             throw new InvalidOperationException($"KitchenOrder for Order {msg.OrderId} not found yet.");
         }
 
-        kitchenOrder.GlobalOrderStatus = msg.NewStatus;
+        if (kitchenOrder.TransitionTo(msg.NewStatus)) kitchenOrder.UpdatedAt = msg.UpdatedAt;
 
         if (msg.NewStatus == OrderStatus.Cancelled)
         {

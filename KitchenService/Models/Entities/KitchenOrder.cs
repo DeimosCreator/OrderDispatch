@@ -1,6 +1,5 @@
 ﻿using KitchenService.Models.Entities.Enums;
 using KitchenService.StateMachine;
-using OrderDispatch.Contracts.Enums;
 
 namespace KitchenService.Models.Entities;
 
@@ -12,7 +11,6 @@ public class KitchenOrder
     public string UserId { get; set; } = string.Empty;
     public decimal TotalPrice { get; set; }
     public KitchenStatus Status { get; private set; } = KitchenStatus.Queued;
-    public OrderStatus GlobalOrderStatus { get; set; } 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime StartedAt { get; set; }
@@ -20,11 +18,11 @@ public class KitchenOrder
 
     public List<KitchenOrderItem> KitchenOrderItems { get; set; } = [];
     
-    public bool TransitionTo(KitchenStatus nextStatus)
+    public bool TransitionTo(KitchenStatusInput nextStatus)
     {
-        if (!KitchenStateMachine.EnsureCanTransition(Status, nextStatus)) return false;
+        if (!KitchenStateMachine.EnsureCanTransition(Status, nextStatus, out var resolvedStatus)) return false;
         
-        Status = nextStatus;
+        Status = resolvedStatus;
         UpdatedAt = DateTime.UtcNow;
         return true;
     }

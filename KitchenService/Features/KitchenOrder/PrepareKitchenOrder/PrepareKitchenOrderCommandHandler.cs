@@ -16,7 +16,7 @@ public class PrepareKitchenOrderCommandHandler(AppDbContext db)
 
         if (kitchenOrder == null) return PrepareKitchenOrderResult.NotFound;
         
-        if (!kitchenOrder.TransitionTo(KitchenStatus.Preparing) && kitchenOrder.GlobalOrderStatus != OrderStatus.Paid) 
+        if (!kitchenOrder.TransitionTo(KitchenStatus.Preparing)) 
             return PrepareKitchenOrderResult.CannotPrepare;
 
         kitchenOrder.UpdatedAt = DateTime.UtcNow;

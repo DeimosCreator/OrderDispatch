@@ -1,11 +1,14 @@
 ﻿using KitchenService.Data;
 using KitchenService.Models.Entities.Enums;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using OrderDispatch.Contracts.Messaging.Events.Kitchens;
 
 namespace KitchenService.Features.KitchenOrder.AcceptKitchenOrder;
 
-public class AcceptKitchenOrderCommandHandler(AppDbContext db) : IRequestHandler<AcceptKitchenOrderCommand, AcceptKitchenOrderResult>
+public class AcceptKitchenOrderCommandHandler(AppDbContext db, IPublishEndpoint publishEndpoint)
+    : IRequestHandler<AcceptKitchenOrderCommand, AcceptKitchenOrderResult>
 {
     public async Task<AcceptKitchenOrderResult> Handle(AcceptKitchenOrderCommand request, CancellationToken cancellationToken)
     {
@@ -14,6 +17,7 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db) : IRequestHandler
 
         if (kitchenOrder == null) return AcceptKitchenOrderResult.KitchenOrderNotFound;
 
+        /*
         var kitchen = await db.Kitchens.Where(kitchen => kitchen.Id == kitchenOrder.KitchenId)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -33,15 +37,21 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db) : IRequestHandler
 
         if (activeItemsCount + orderItemsCount > kitchen.Capacity)
             return AcceptKitchenOrderResult.KitchenBusy;
+        */
 
         if (!kitchenOrder.TransitionTo(KitchenStatus.Accepted))
             return AcceptKitchenOrderResult.CannotAccept;
 
-        kitchen.CurrentLoad = Math.Clamp((float)(activeItemsCount + orderItemsCount) / kitchen.Capacity, 0f, 1f);
-        kitchenOrder.StartedAt = DateTime.UtcNow;
+        //kitchen.CurrentLoad = Math.Clamp((float)(activeItemsCount + orderItemsCount) / kitchen.Capacity, 0f, 1f);
+        
+        //TODO: Переделать систему под управление взятия заказа шефом (OrderCreatedConsumer.cs)
+        
         kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
+
+        await publishEndpoint.Publish(new KitchenAcceptedOrderEvent(kitchenOrder.OrderId), cancellationToken);
+        
         return AcceptKitchenOrderResult.Accepted;
     }
 }

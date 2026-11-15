@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using MediatR;
 using OrderDispatch.Contracts.Dtos.Orders;
+using OrderDispatch.Contracts.Enums;
 using OrderDispatch.Contracts.Messaging.Events.Orders;
 using OrderService.Data;
 using OrderService.Models.Entities;
@@ -27,11 +28,16 @@ public class CreateOrderCommandHandler(AppDbContext db, IPublishEndpoint publish
         db.Orders.Add(order);
         await db.SaveChangesAsync(cancellationToken);
 
-        await publishEndpoint.Publish(new OrderCreatedEvent(
-                order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt, request.Items
-                    .Select(item => new OrderItemDto(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice))
-                    .ToList()),
-            cancellationToken);
+        if (order.TransitionTo(OrderStatus.PendingKitchen))
+        {
+            await publishEndpoint.Publish(new OrderCreatedEvent(
+                    order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt, request.Items
+                        .Select(item => new OrderItemDto(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice))
+                        .ToList()),
+                cancellationToken);
+            
+            await db.SaveChangesAsync(cancellationToken);
+        }
 
         var orderDto = new OrderDto(order.Id, order.UserId, order.Status, order.TotalPrice, order.CreatedAt,
             order.UpdatedAt);

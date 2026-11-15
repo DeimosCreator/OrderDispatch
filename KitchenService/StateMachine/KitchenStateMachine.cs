@@ -1,6 +1,13 @@
 ﻿using KitchenService.Models.Entities.Enums;
+using OrderDispatch.Contracts.Enums;
 
 namespace KitchenService.StateMachine;
+
+public readonly record struct KitchenStatusInput(KitchenStatus? Status)
+{
+    public static implicit operator KitchenStatusInput(KitchenStatus status) => new(status);
+    public static implicit operator KitchenStatusInput(OrderStatus status) => new(status.ToKitchenStatus());
+}
 
 public static class KitchenStateMachine
 {
@@ -32,6 +39,18 @@ public static class KitchenStateMachine
                 KitchenStatus.Cancelled
             ]
         };
+    
+    public static KitchenStatus? ToKitchenStatus(this OrderStatus orderStatus) => orderStatus switch
+    {
+        OrderStatus.PendingKitchen => KitchenStatus.Queued,
+        OrderStatus.KitchenAccepted => KitchenStatus.Accepted,
+        OrderStatus.Paid => KitchenStatus.Paid,
+        OrderStatus.Preparing => KitchenStatus.Preparing,
+        OrderStatus.Ready => KitchenStatus.Ready,
+        OrderStatus.Cancelled => KitchenStatus.Cancelled,
+        OrderStatus.Rejected => KitchenStatus.Rejected,
+        _ => null
+    };
 
     public static bool CanTransition(KitchenStatus current, KitchenStatus next)
     {
@@ -40,8 +59,15 @@ public static class KitchenStateMachine
                && allowed.Contains(next);
     }
 
-    public static bool EnsureCanTransition(KitchenStatus current, KitchenStatus next)
+    public static bool EnsureCanTransition(KitchenStatus current, KitchenStatusInput next, out KitchenStatus resolvedStatus)
     {
-        return CanTransition(current, next);
+        if (next.Status is { } target && CanTransition(current, target))
+        {
+            resolvedStatus = target;
+            return true;
+        }
+
+        resolvedStatus = current;
+        return false;
     }
 }

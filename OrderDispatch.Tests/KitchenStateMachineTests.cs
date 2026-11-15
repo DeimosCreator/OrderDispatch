@@ -7,7 +7,8 @@ public class KitchenStateMachineTests
 {
     [TestCase(KitchenStatus.Queued, KitchenStatus.Accepted, true)]
     [TestCase(KitchenStatus.Queued, KitchenStatus.Rejected, true)]
-    [TestCase(KitchenStatus.Accepted, KitchenStatus.Preparing, true)]
+    [TestCase(KitchenStatus.Accepted, KitchenStatus.Paid, true)]
+    [TestCase(KitchenStatus.Paid, KitchenStatus.Preparing, true)]
     [TestCase(KitchenStatus.Preparing, KitchenStatus.Ready, true)]
     [TestCase(KitchenStatus.Queued, KitchenStatus.Ready, false)]
     [TestCase(KitchenStatus.Ready, KitchenStatus.Cancelled, false)]

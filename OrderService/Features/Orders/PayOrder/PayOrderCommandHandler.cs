@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Enums;
-using OrderDispatch.Contracts.Messaging.Events;
 using OrderDispatch.Contracts.Messaging.Events.Orders;
 using OrderService.Data;
 using OrderService.Models.Entities.Enums;
@@ -19,8 +18,12 @@ public class PayOrderCommandHandler(AppDbContext db, IPublishEndpoint publishEnd
 
         if (order == null) return PayOrderResult.NotFound;
 
-        if (!order.TransitionTo(OrderStatus.Paid)) return PayOrderResult.CannotPaid;
+        if (!order.TransitionTo(OrderStatus.PaymentPending)) return PayOrderResult.CannotPaid;
+        await db.SaveChangesAsync(cancellationToken);
+        
+        //TODO: Здесь должна быть реальная оплата
 
+        if (!order.TransitionTo(OrderStatus.Paid)) return PayOrderResult.CannotPaid;
         await db.SaveChangesAsync(cancellationToken);
 
         await publishEndpoint.Publish(new OrderStatusChangedEvent(order.Id, order.Status, order.UpdatedAt),

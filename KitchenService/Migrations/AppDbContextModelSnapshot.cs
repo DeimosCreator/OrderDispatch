@@ -59,9 +59,6 @@ namespace KitchenService.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("GlobalOrderStatus")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("KitchenId")
                         .HasColumnType("integer");
 
