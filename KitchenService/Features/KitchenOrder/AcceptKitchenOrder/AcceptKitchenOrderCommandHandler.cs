@@ -17,12 +17,14 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db, IPublishEndpoint 
 
         if (kitchenOrder == null) return AcceptKitchenOrderResult.KitchenOrderNotFound;
 
-        /*
-        var kitchen = await db.Kitchens.Where(kitchen => kitchen.Id == kitchenOrder.KitchenId)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        var kitchen = await db.Kitchens
+            .Where(kitchen => kitchen.KitchenStaffs.Any(kitchenStaff => kitchenStaff.UserId == request.UserId))
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (kitchen == null) return AcceptKitchenOrderResult.KitchenNotFound;
-
+        
+        if (!kitchen.IsActive) return AcceptKitchenOrderResult.KitchenNotActive;
+        
         if (kitchen.Capacity <= 0) return AcceptKitchenOrderResult.KitchenBusy;
         
         var orderItemsCount = await db.KitchenOrderItems
@@ -37,15 +39,11 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db, IPublishEndpoint 
 
         if (activeItemsCount + orderItemsCount > kitchen.Capacity)
             return AcceptKitchenOrderResult.KitchenBusy;
-        */
 
         if (!kitchenOrder.TransitionTo(KitchenStatus.Accepted))
             return AcceptKitchenOrderResult.CannotAccept;
 
-        //kitchen.CurrentLoad = Math.Clamp((float)(activeItemsCount + orderItemsCount) / kitchen.Capacity, 0f, 1f);
-        
-        //TODO: Переделать систему под управление взятия заказа шефом (OrderCreatedConsumer.cs)
-        
+        kitchen.CurrentLoad = Math.Clamp((float)(activeItemsCount + orderItemsCount) / kitchen.Capacity, 0f, 1f);
         kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);

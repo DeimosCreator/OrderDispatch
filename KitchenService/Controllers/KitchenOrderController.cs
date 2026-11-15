@@ -31,12 +31,14 @@ public class KitchenOrderController(ISender sender) : BaseController
     [HttpPost("{id:int}/accept")]
     public async Task<IActionResult> AcceptKitchenOrder(int id)
     {
-        var status = await sender.Send(new AcceptKitchenOrderCommand(id));
+        var userId = GetUserId();
+        var status = await sender.Send(new AcceptKitchenOrderCommand(id, userId));
         return status switch
         {
             AcceptKitchenOrderResult.KitchenNotFound => NotFound("Кухня не найдена"),
             AcceptKitchenOrderResult.KitchenOrderNotFound => NotFound("Заказ кухни не найден"),
-            //AcceptKitchenOrderResult.KitchenBusy => Conflict("Кухня в данный момент занята"),
+            AcceptKitchenOrderResult.KitchenNotActive => Conflict("Кухня в данный момент неактивна"),
+            AcceptKitchenOrderResult.KitchenBusy => Conflict("Кухня в данный момент занята"),
             AcceptKitchenOrderResult.CannotAccept => Conflict("Заказ кухни нельзя взять"),
             AcceptKitchenOrderResult.Accepted => Ok(status),
             _ => StatusCode(500)
