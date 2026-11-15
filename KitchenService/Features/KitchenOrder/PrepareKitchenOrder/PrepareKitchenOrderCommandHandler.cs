@@ -2,6 +2,7 @@
 using KitchenService.Models.Entities.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using OrderDispatch.Contracts.Enums;
 
 namespace KitchenService.Features.KitchenOrder.PrepareKitchenOrder;
 
@@ -15,7 +16,8 @@ public class PrepareKitchenOrderCommandHandler(AppDbContext db)
 
         if (kitchenOrder == null) return PrepareKitchenOrderResult.NotFound;
         
-        if (!kitchenOrder.TransitionTo(KitchenStatus.Preparing)) return PrepareKitchenOrderResult.CannotPrepare;
+        if (!kitchenOrder.TransitionTo(KitchenStatus.Preparing) && kitchenOrder.GlobalOrderStatus != OrderStatus.Paid) 
+            return PrepareKitchenOrderResult.CannotPrepare;
 
         kitchenOrder.UpdatedAt = DateTime.UtcNow;
         

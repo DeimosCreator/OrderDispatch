@@ -16,6 +16,12 @@ public static class KitchenStateMachine
 
             [KitchenStatus.Accepted] =
             [
+                KitchenStatus.Paid,
+                KitchenStatus.Cancelled
+            ],
+            
+            [KitchenStatus.Paid] = 
+            [
                 KitchenStatus.Preparing,
                 KitchenStatus.Cancelled
             ],
