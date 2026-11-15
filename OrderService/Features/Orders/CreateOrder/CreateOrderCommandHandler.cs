@@ -14,9 +14,16 @@ public class CreateOrderCommandHandler(AppDbContext db, IPublishEndpoint publish
         var order = new Order
         {
             UserId = request.UserId,
-            TotalPrice = request.Items.Select(item => item.Quantity).Sum()
+            TotalPrice = request.Items.Select(item => item.Quantity * item.UnitPrice).Sum(),
+            OrderItems = request.Items.Select(item => new OrderItem
+            {
+                ProductId = item.ProductId,
+                ProductName = item.ProductName,
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice
+            }).ToList()
         };
-
+        
         db.Orders.Add(order);
         await db.SaveChangesAsync(cancellationToken);
 

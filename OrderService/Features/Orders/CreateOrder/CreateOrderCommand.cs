@@ -6,5 +6,5 @@ namespace OrderService.Features.Orders.CreateOrder;
 
 public record CreateOrderCommand(
     string UserId,
-    List<CreateOrderItemDto> Items
+    [MinLength(1)] List<CreateOrderItemDto> Items
 ) : IRequest<OrderDto>;

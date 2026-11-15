@@ -97,6 +97,37 @@ namespace KitchenService.Migrations
                     b.ToTable("KitchenOrders");
                 });
 
+            modelBuilder.Entity("KitchenService.Models.Entities.KitchenOrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("KitchenOrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KitchenOrderId");
+
+                    b.ToTable("KitchenOrderItems");
+                });
+
             modelBuilder.Entity("KitchenService.Models.Entities.KitchenStaff", b =>
                 {
                     b.Property<int>("Id")
@@ -126,6 +157,15 @@ namespace KitchenService.Migrations
                         .HasForeignKey("KitchenId");
                 });
 
+            modelBuilder.Entity("KitchenService.Models.Entities.KitchenOrderItem", b =>
+                {
+                    b.HasOne("KitchenService.Models.Entities.KitchenOrder", null)
+                        .WithMany("KitchenOrderItems")
+                        .HasForeignKey("KitchenOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("KitchenService.Models.Entities.KitchenStaff", b =>
                 {
                     b.HasOne("KitchenService.Models.Entities.Kitchen", null)
@@ -138,6 +178,11 @@ namespace KitchenService.Migrations
                     b.Navigation("KitchenOrders");
 
                     b.Navigation("KitchenStaffs");
+                });
+
+            modelBuilder.Entity("KitchenService.Models.Entities.KitchenOrder", b =>
+                {
+                    b.Navigation("KitchenOrderItems");
                 });
 #pragma warning restore 612, 618
         }
