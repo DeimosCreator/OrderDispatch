@@ -3,7 +3,7 @@
 namespace OrderDispatch.Contracts.Messaging.Events.Orders;
 
 public record OrderStatusChangedEvent(
-    int OrderId, 
-    OrderStatus NewStatus, 
+    int OrderId,
+    OrderStatus NewStatus,
     DateTime UpdatedAt
 );
