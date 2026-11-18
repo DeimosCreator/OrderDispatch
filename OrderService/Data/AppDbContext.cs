@@ -13,7 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         foreach (var entry in ChangeTracker.Entries<IAuditable>())
         {
-            if (entry.State == EntityState.Added && entry.State == EntityState.Modified)
+            if (entry.State is EntityState.Added or EntityState.Modified)
             {
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
             }
