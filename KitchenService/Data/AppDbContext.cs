@@ -1,5 +1,6 @@
 ﻿using KitchenService.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using OrderDispatch.Contracts.Abstractions;
 
 namespace KitchenService.Data;
 
@@ -20,5 +21,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(e => e.OrderId)
                 .IsUnique(); 
         });
+    }
+    
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var entry in ChangeTracker.Entries<IAuditable>())
+        {
+            if (entry.State is EntityState.Added or EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
     }
 }
