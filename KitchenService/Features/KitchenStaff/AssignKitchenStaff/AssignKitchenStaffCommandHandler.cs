@@ -35,7 +35,7 @@ public class AssignKitchenStaffCommandHandler(
             (await requestClient.GetResponse<UserRoleResponse>(new GetUserRolesRequest(request.UserId),
                 cancellationToken)).Message.Role;
 
-        if (!AppRoles.IsHigher([userRole], [assignStaffUserRole]))
+        if (!AppRoles.IsHigher([userRole!], [assignStaffUserRole]))
             return AssignKitchenStaffStatus.CannotAssignKitchenStaff;
 
         var kitchenStaff = await db.KitchenStaffs
