@@ -34,6 +34,7 @@
 
     <ItemGroup>
       <Folder Include="Authorization\" />
+      <Folder Include="Features\Kitchen\Consumers\" />
     </ItemGroup>
 
 </Project>

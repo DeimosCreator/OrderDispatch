@@ -4,7 +4,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using OrderDispatch.Contracts.Messaging.Events.Orders;
 
-namespace KitchenService.Features.Kitchen.Consumers;
+namespace KitchenService.Features.KitchenOrder.Consumers;
 
 public class OrderCreatedConsumer(AppDbContext db) : IConsumer<OrderCreatedEvent>
 {
