@@ -26,7 +26,7 @@ public class PayOrderCommandHandler(AppDbContext db, IPublishEndpoint publishEnd
         if (!order.TransitionTo(OrderStatus.Paid)) return PayOrderResult.CannotPaid;
         await db.SaveChangesAsync(cancellationToken);
 
-        await publishEndpoint.Publish(new OrderPaidEvent(order.Id, order.UpdatedAt),
+        await publishEndpoint.Publish(new OrderPaidEvent(order.Id),
             cancellationToken);
 
         return PayOrderResult.Paid;

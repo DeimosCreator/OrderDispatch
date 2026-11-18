@@ -18,8 +18,6 @@ public class PrepareKitchenOrderCommandHandler(AppDbContext db)
         
         if (!kitchenOrder.TransitionTo(KitchenStatus.Preparing)) 
             return PrepareKitchenOrderResult.CannotPrepare;
-
-        kitchenOrder.UpdatedAt = DateTime.UtcNow;
         
         await db.SaveChangesAsync(cancellationToken);
         return PrepareKitchenOrderResult.Preparing;

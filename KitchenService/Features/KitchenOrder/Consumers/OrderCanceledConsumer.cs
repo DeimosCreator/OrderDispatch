@@ -23,7 +23,6 @@ public class OrderCanceledConsumer(AppDbContext db) : IConsumer<OrderChangedEven
         }
 
         kitchenOrder.TransitionTo(KitchenStatus.Cancelled);
-        kitchenOrder.UpdatedAt = msg.UpdatedAt;
         
         await db.SaveChangesAsync(ct);
     }

@@ -44,7 +44,6 @@ public class AcceptKitchenOrderCommandHandler(AppDbContext db, IPublishEndpoint 
             return AcceptKitchenOrderResult.CannotAccept;
 
         kitchen.CurrentLoad = Math.Clamp((float)(activeItemsCount + orderItemsCount) / kitchen.Capacity, 0f, 1f);
-        kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
 

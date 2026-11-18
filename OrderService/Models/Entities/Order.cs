@@ -1,9 +1,10 @@
-﻿using OrderDispatch.Contracts.Enums;
+﻿using OrderDispatch.Contracts.Abstractions;
+using OrderDispatch.Contracts.Enums;
 using OrderService.StateMachine;
 
 namespace OrderService.Models.Entities;
 
-public class Order
+public class Order : IAuditable
 {
     public int Id { get; set; }
     public string UserId { get; set; } = string.Empty;
@@ -19,7 +20,6 @@ public class Order
         if (!OrderStateMachine.EnsureCanTransition(Status, nextStatus)) return false;
         
         Status = nextStatus;
-        UpdatedAt = DateTime.UtcNow;
         return true;
     }
 }

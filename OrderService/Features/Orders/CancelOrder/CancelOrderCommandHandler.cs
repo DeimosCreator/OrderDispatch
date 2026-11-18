@@ -19,12 +19,11 @@ public class CancelOrderCommandHandler(AppDbContext db, IPublishEndpoint publish
         if (order == null) return CancelOrderResult.NotFound;
 
         if (!order.TransitionTo(OrderStatus.Cancelled)) return CancelOrderResult.CannotCancel;
-        order.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
 
         await publishEndpoint.Publish(
-            new OrderChangedEvent(order.Id, order.UpdatedAt), cancellationToken);
+            new OrderChangedEvent(order.Id), cancellationToken);
 
         return CancelOrderResult.Cancelled;
     }

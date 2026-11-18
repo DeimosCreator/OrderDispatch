@@ -22,7 +22,6 @@ public class ReadyKitchenOrderCommandHandler(AppDbContext db)
             return ReadyKitchenOrderResult.CannotReady;
 
         kitchenOrder.ReadyAt = DateTime.UtcNow;
-        kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
         if (kitchenOrder.KitchenId.HasValue)
         {
@@ -58,7 +57,6 @@ public class ReadyKitchenOrderCommandHandler(AppDbContext db)
                     nextOrder.KitchenId = kitchen.Id;
                     nextOrder.TransitionTo(KitchenStatus.Accepted);
                     nextOrder.StartedAt = DateTime.UtcNow;
-                    nextOrder.UpdatedAt = DateTime.UtcNow;
 
                     activeItemsCount += nextOrder.KitchenOrderItems.Sum(i => (int)i.Quantity);
                 }

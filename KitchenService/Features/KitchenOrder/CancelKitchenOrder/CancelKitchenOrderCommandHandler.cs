@@ -36,8 +36,6 @@ public class CancelKitchenOrderCommandHandler(AppDbContext db)
                 kitchen.CurrentLoad = Math.Clamp((float)activeItemsCount / kitchen.Capacity, 0f, 1f);
             }
         }
-        
-        kitchenOrder.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
         return CancelKitchenOrderResult.Cancelled;

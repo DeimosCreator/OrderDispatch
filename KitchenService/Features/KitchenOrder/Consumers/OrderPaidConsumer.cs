@@ -23,7 +23,6 @@ public class OrderPaidConsumer(AppDbContext db) : IConsumer<OrderPaidEvent>
         }
 
         kitchenOrder.TransitionTo(KitchenStatus.Paid);
-        kitchenOrder.UpdatedAt = msg.UpdatedAt;
         
         await db.SaveChangesAsync(ct);
     }

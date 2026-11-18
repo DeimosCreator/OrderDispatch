@@ -1,9 +1,10 @@
 ﻿using KitchenService.Models.Entities.Enums;
 using KitchenService.StateMachine;
+using OrderDispatch.Contracts.Abstractions;
 
 namespace KitchenService.Models.Entities;
 
-public class KitchenOrder
+public class KitchenOrder : IAuditable
 {
     public int Id { get; set; }
     public int OrderId { get; set; }
@@ -23,7 +24,6 @@ public class KitchenOrder
         if (!KitchenStateMachine.EnsureCanTransition(Status, nextStatus, out var resolvedStatus)) return false;
         
         Status = resolvedStatus;
-        UpdatedAt = DateTime.UtcNow;
         return true;
     }
 }
